@@ -42,6 +42,7 @@ void SymbolTable::addSymbol(const Symbol& symbol)
     }
     Symbol* newSymbol = new Symbol(symbol);
     symbols.push_back(newSymbol);
+    maxOffset = newSymbol->getOffset() ;
 }
 
 
