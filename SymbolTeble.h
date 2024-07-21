@@ -74,8 +74,10 @@ public:
     void popScope();
     bool isDefinedInProgram(const string& symName);
     void addSymbolToProgram(const string& name, bool isFunc, const string& type, vector<string> names);
-    //SymbolTable* getTopScope();
+    SymbolTable* getScope();
     Symbol* findSymbol(const string& symName);
+    
+
 };
 
 

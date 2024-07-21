@@ -105,3 +105,6 @@ void StackTable::addSymbolToProgram(const string& name, bool isFunc, const strin
     scope->addSymbol(newSymbol);
 }
 
+SymbolTable* StackTable::getScope(){
+    return scopes.back();
+}
