@@ -1,20 +1,19 @@
 #include "SymbolTeble.h"
+#include "hw3_output.hpp"
 
 SymbolTable::SymbolTable(int maxOff,bool isloop, string retType = "") : symbols() { 
-    maxOffset = maxOff;
+    currentOffset = maxOff;
     isLoop = isloop;
     returnedType = new string(retType);
 }
 
-SymbolTable::~SymbolTable()
-{
+SymbolTable::~SymbolTable() {
     delete returnedType;
     for (Symbol* symbol : symbols) 
          delete symbol; 
 }
 
-bool SymbolTable::isDefined(const string& name)
-{
+bool SymbolTable::isDefinedInTable(const string& name) {
     for (const Symbol* symbol : symbols) {
         if (symbol->getName() == name) {
             return true;
@@ -23,9 +22,8 @@ bool SymbolTable::isDefined(const string& name)
     return false;
 }
 
-Symbol* SymbolTable::findSymbol(const string& name)
-{   
-    if(!isDefined(name)) {
+Symbol* SymbolTable::findSymbol(const string& name){   
+    if(!isDefinedInTable(name)) {
         return nullptr;
     }
     for (Symbol* symbol : symbols) {
@@ -35,14 +33,75 @@ Symbol* SymbolTable::findSymbol(const string& name)
     }
 }
 
-void SymbolTable::addSymbol(const Symbol& symbol) 
-{
-    if(!isDefined(symbol.getName())) {
+void SymbolTable::addSymbol(const Symbol& symbol) {
+    if(!isDefinedInTable(symbol.getName())) {
         return;
     }
     Symbol* newSymbol = new Symbol(symbol);
     symbols.push_back(newSymbol);
-    maxOffset = newSymbol->getOffset() ;
+    currentOffset = newSymbol->getOffset() ;
 }
 
+
+void StackTable::pushScope(bool isLoop, string retType) {
+    SymbolTable* newScope = new SymbolTable(offsets.back(), isLoop, retType);
+    SymbolTable* temp = scopes.back(); ///temp is the current scope
+    offsets.push_back(temp->getOffset()); 
+}
+
+void StackTable::popScope() {
+    SymbolTable* temp = scopes.back();
+    scopes.pop_back();
+    offsets.pop_back();
+    output::endScope();
+    for (Symbol* symbol : temp->symbols) {
+        string name = symbol->getName();
+        int offset = symbol->getOffset();
+        if (!symbol->getIsFunction()) {
+            output::printID(name, offset, upperCase(symbol->getType()));
+        }
+        else {
+            vector<string> args = symbol->getNameType().names;
+            for(string& arg : args) {
+                arg = upperCase(arg);
+            }
+            string funcType = output::makeFunctionType(upperCase(symbol->getType()), args);
+            output::printID(name, 0, funcType);
+        }
+    }
+    delete temp;
+    if (offsets.size() > 0) {
+        offsets.pop_back();
+    }
+}
+
+bool StackTable::isDefinedInProgram(const string& name) {
+    for (SymbolTable* scope : scopes) {
+        if (scope->isDefinedInTable(name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+Symbol* StackTable::findSymbol(const string& name) {
+    for (SymbolTable* scope : scopes) {
+        Symbol* symbol = scope->findSymbol(name);
+        if (symbol != nullptr) {
+            return symbol;
+        }
+    }
+    return nullptr;
+}
+
+void StackTable::addSymbolToProgram(const string& name, bool isFunc, const string& type, vector<string> names) {
+    SymbolTable* scope = scopes.back();
+    int newOffset = 0;
+    if(!isFunc) {
+        newOffset = offsets.back();
+        offsets.push_back(newOffset + 1);
+    }
+    Symbol newSymbol(name, newOffset, isFunc, type, names);
+    scope->addSymbol(newSymbol);
+}
 
