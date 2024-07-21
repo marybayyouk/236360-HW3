@@ -1,7 +1,8 @@
 #include "SymbolTeble.h"
 
-SymbolTable::SymbolTable(int maxOff, string retType = "") : symbols() { 
+SymbolTable::SymbolTable(int maxOff,bool isloop, string retType = "") : symbols() { 
     maxOffset = maxOff;
+    isLoop = isloop;
     returnedType = new string(retType);
 }
 
