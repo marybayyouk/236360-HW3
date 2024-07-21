@@ -32,9 +32,11 @@ public:
 class SymbolTable {
     vector<Symbol*> symbols;
     int maxOffset;
+    bool isLoop;
     string* returnedType;
+    ///maybe we need to add another members later
 public:
-    SymbolTable(int maxOff, string retType = "");
+    SymbolTable(int maxOff,bool isLoop, string retType = "");
     ~SymbolTable();
 
     bool isDefined(const string& name);
@@ -42,6 +44,10 @@ public:
     void addSymbol(const Symbol& symbol);
 };
 
+
+class StackTable {
+
+};
 
 
 #endif // __SYMBOLTABLE_H_
