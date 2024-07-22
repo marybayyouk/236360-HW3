@@ -1,6 +1,7 @@
 %{
-#include "output.hpp"
+#include "hw3_output.hpp"
 #include "parser.tab.hpp"
+
 %}
 
 %option noyywrap
@@ -39,9 +40,9 @@ continue        { return CONTINUE; }
 \-              { return SUB; }
 \*              { return MULTIPLY; }
 \/              { return DIVIDE; }
-{ID}            { return ID; } 
-0|[1-9]{digit}* { return NUM;}
-\"([^\n\r\"\\]|\\[rnt"\\])+\"       { return STRING; }
+{ID}            { yylval.str = strdup(yytext); return ID;} 
+0|[1-9]{digit}* { yylval.num = atoi(yytext); return NUM;}
+\"([^\n\r\"\\]|\\[rnt"\\])+\"       { yylval.str = strdup(yytext); return STRING; }
 \/\/[^\r\n]*\r?\n?                   ;
 {whitespace}    { /* ignore whitespace */ }
 .               { output::errorLex(yylineno);

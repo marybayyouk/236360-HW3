@@ -1,6 +1,6 @@
 %{
 #include <iostream>
-#include "output.hpp"
+#include "hw3_output.hpp"
 extern int yylex();
 extern int yylineno;
 int yyerror(const char *s);
@@ -20,46 +20,46 @@ int yyerror(const char *s);
 %left LPAREN RPAREN LBRACE RBRACE 
 
 %%
-Program: Statements                                                     {output::printProductionRule(1);};
-Statements: Statement                                                   {output::printProductionRule(2);}
-            | Statements Statement                                      {output::printProductionRule(3);}; 
+Program: Statements                                                     
+Statements: Statement                                                  
+            | Statements Statement                                      
                                                                         
-Statement: LBRACE Statements RBRACE                                     {output::printProductionRule(4);}
-            | Type ID SC                                                {output::printProductionRule(5);}
-            | Type ID ASSIGN Exp SC                                     {output::printProductionRule(6);}
-            | ID ASSIGN Exp SC                                          {output::printProductionRule(7);}
-            | Call SC                                                   {output::printProductionRule(8);}
-            | RETURN SC                                                 {output::printProductionRule(9);}
-            | IF LPAREN Exp RPAREN Statement %prec IF                   {output::printProductionRule(10);}
-            | IF LPAREN Exp RPAREN Statement ELSE Statement             {output::printProductionRule(11);}
-            | WHILE LPAREN Exp RPAREN Statement                         {output::printProductionRule(12);}
-            | BREAK SC                                                  {output::printProductionRule(13);}
-            | CONTINUE SC                                               {output::printProductionRule(14);};
+Statement: LBRACE Statements RBRACE                                     
+            | Type ID SC                                                
+            | Type ID ASSIGN Exp SC                                     
+            | ID ASSIGN Exp SC                                          
+            | Call SC                                                   
+            | RETURN SC                                                 
+            | IF LPAREN Exp RPAREN Statement %prec IF                   
+            | IF LPAREN Exp RPAREN Statement ELSE Statement             
+            | WHILE LPAREN Exp RPAREN Statement                         
+            | BREAK SC                                                  
+            | CONTINUE SC                                              
 
-Call:   ID LPAREN Exp RPAREN                                            {output::printProductionRule(15);};
+Call:   ID LPAREN Exp RPAREN                                            
 
-Type:   INT                                                             {output::printProductionRule(16);}
-        | BYTE                                                          {output::printProductionRule(17);}
-        | BOOL                                                          {output::printProductionRule(18);};
+Type:   INT                                                            
+        | BYTE                                                          
+        | BOOL                                                         
 
-Exp:    LPAREN Exp RPAREN                                               {output::printProductionRule(19);}
-        | Exp ADD Exp                                                   {output::printProductionRule(20);}
-        | Exp SUB Exp                                                   {output::printProductionRule(20);}
-        | Exp DIVIDE Exp                                                {output::printProductionRule(20);}
-        | Exp MULTIPLY Exp                                              {output::printProductionRule(20);}
-        | ID                                                            {output::printProductionRule(21);}
-        | Call                                                          {output::printProductionRule(22);}
-        | NUM                                                           {output::printProductionRule(23);}
-        | NUM B                                                         {output::printProductionRule(24);}
-        | STRING                                                        {output::printProductionRule(25);}
-        | TRUE                                                          {output::printProductionRule(26);}
-        | FALSE                                                         {output::printProductionRule(27);}
-        | NOT Exp                                                       {output::printProductionRule(28);}
-        | Exp AND Exp                                                   {output::printProductionRule(29);}
-        | Exp OR Exp                                                    {output::printProductionRule(30);}
-        | Exp ISEQUAL Exp                                               {output::printProductionRule(31);}
-        | Exp RELOP Exp                                                 {output::printProductionRule(31);}
-        | LPAREN Type RPAREN Exp                                        {output::printProductionRule(32);};
+Exp:    LPAREN Exp RPAREN                                               
+        | Exp ADD Exp                                                   
+        | Exp SUB Exp                                                   
+        | Exp DIVIDE Exp                                                
+        | Exp MULTIPLY Exp                                              
+        | ID                                                            
+        | Call                                                         
+        | NUM                                                          
+        | NUM B                                                        
+        | STRING                                                      
+        | TRUE                                                         
+        | FALSE                                                      
+        | NOT Exp                                                      
+        | Exp AND Exp                                                   
+        | Exp OR Exp                                                    
+        | Exp ISEQUAL Exp                                           
+        | Exp RELOP Exp                                               
+        | LPAREN Type RPAREN Exp                                       
 
 %%
 int yyerror(const char *s) {
