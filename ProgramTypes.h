@@ -74,6 +74,7 @@ public:
     Expression(Node* terminalExp); //𝐸𝑥𝑝 → 𝐼𝐷
     Expression(Node* exp, Type type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
     Expression(Node* terminalExp, Type type); //Exp->BOOL/BYTE/INT/NUM
+    Expression(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And / Or Exp
     ~Expression() = default;
     Type getType() const { return type; }
     void setType(Type toSet) { type = toSet; }

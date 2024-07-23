@@ -85,7 +85,7 @@ Statement::Statement(Type type, Node * id, Expression * exp) {
     setValue(typeToString[(int)type]);
     scopes.addSymbolToProgram(id->getValue(), false, typeToString[(int)type], {});
 }
-//Statement L Statement R 
+// Statement L Statement R 
 Statement::Statement(Statments* Statments) {
     //open new scope
     scopes.pushScope(false, "");
@@ -93,16 +93,16 @@ Statement::Statement(Statments* Statments) {
 
 Expression::Expression() : Node(""), type(VOID) {};
 
-//𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
+// 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
 Expression::Expression(Node *exp) : Node(exp->getValue()) {};
 
-//𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
+// 𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
 Expression::Expression(Call* call) {
     setValue(call->getValue());
     setType(stringToType(scopes.findSymbol(call->getValue())->getType()));
 }
 
-//𝐸𝑥𝑝 → 𝐼𝐷
+// 𝐸𝑥𝑝 → 𝐼𝐷
 Expression::Expression(Node* terminalExp) {
     if (!scopes.isDefinedInProgram(terminalExp->getValue())){
         output::errorUndef(yylineno, terminalExp->getValue());
@@ -112,7 +112,7 @@ Expression::Expression(Node* terminalExp) {
     setType(stringToType(scopes.findSymbol(terminalExp->getValue())->getType()));
 }
 
-//𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
+// 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
 Expression::Expression(Node* toExp, Type type) {
     Expression* exp = dynamic_cast<Expression *> (toExp);
     if(!LegalType(typeToString[int(exp->getType())], typeToString[int(type)])){
@@ -123,12 +123,49 @@ Expression::Expression(Node* toExp, Type type) {
     setValue(exp->getValue());
 }
 
-//Exp->BOOL/BYTE/INT/NUM
+// Exp->BOOL/BYTE/INT/NUM
 Expression::Expression(Node* terminalExp, Type type1): Node(terminalExp->getValue()) {
     type = type1;
     if((type == BYTE) && (stoi(terminalExp->getValue()) > 255)){
         output::errorByteTooLarge(yylineno, terminalExp->getValue());
         exit(0);
+    }
+}
+
+
+// Exp -> Exp And / Or Exp
+Expression::Expression(Node* leftExp, Node* rightExp, string op) {
+    Expression* left = dynamic_cast<Expression *> (leftExp);
+    Expression* right = dynamic_cast<Expression *> (rightExp);
+    if (left->getType() != BOOL || right->getType() != BOOL) {
+        output::errorMismatch(yylineno);
+        exit(0);
+    } 
+    if (op == "AND" || op == "OR") {
+        setType(BOOL);
+    } else {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+}
+
+// Exp -> Exp Relop/Binoo Exp
+Expression::Expression(Node* leftExp, Node* rightExp, string op) {
+    Expression* left = dynamic_cast<Expression *> (leftExp);
+    Expression* right = dynamic_cast<Expression *> (rightExp);
+    if (left->getType() != (INT || BYTE) || right->getType() != (INT || BYTE)) {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+    if (op == "BINOP") {
+        if (left->getType() == BYTE && right->getType() == BYTE) {
+            setType(BYTE);
+        } else {
+            setType(INT);
+        }
+    }
+    if (op == "RELOP") {
+        setType(BOOL);
     }
 }
 
