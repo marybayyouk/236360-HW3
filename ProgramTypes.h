@@ -1,5 +1,5 @@
 #include <string>
-#include "SymbolTeble.h"
+#include "SymbolTable.h"
 using std::vector;
 ///using std::string
 
@@ -36,6 +36,22 @@ public:
     virtual void print() = 0;
 };
 
+class Expression : public Node {
+    Type type;
+public:
+    Expression();
+    Expression(Node* exp, bool _); //𝐸𝑥𝑝 → Not Exp
+    Expression(Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
+    Expression(Call* call); //𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
+    Expression(Node* terminalExp); //𝐸𝑥𝑝 → 𝐼𝐷
+    Expression(Node* exp, Type type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
+    Expression(Node* terminalExp, Type type); //Exp->BOOL/BYTE/INT/NUM/STRING
+    Expression(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And / Or Exp
+    ~Expression() = default;
+    Type getType() const { return type; }
+    void setType(Type toSet) { type = toSet; }
+};
+
 class Call : public Node {
 public:
     Call(Type type, Node* terminalID);
@@ -51,11 +67,13 @@ public:
 class Statement : public Node {
 public:
     Statement() {};
-    Statement(std::string value);
-    Statement(Call * call);
-    Statement(Type type,Node * id );  
-    Statement(Type type, Node * id, Expression * exp);
-    Statement(Statments* Statments);
+    Statement(std::string value); // Statement -> BREAK / CONTINUE
+    Statement(Call * call); // Statement -> Call SC
+    Statement(Type type,Node * id ); // Statement -> Type ID SC  
+    Statement(Type type, Node * id, Expression * exp); // Statement -> Type ID Assign Exp SC
+    Statement(Node * id, Expression * exp); // Statement -> ID Assign Exp SC
+    Statement(Statments* Statments); // Statement -> { Statements }
+    Statement(Expression* exp); // Statement -> IF ( Exp ) Statement
 };
 
 class Statments : public Node {
@@ -65,19 +83,5 @@ class Statments : public Node {
     ~Statments() = default;
 };
 
-class Expression : public Node {
-    Type type;
-public:
-    Expression();
-    Expression(Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
-    Expression(Call* call); //𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
-    Expression(Node* terminalExp); //𝐸𝑥𝑝 → 𝐼𝐷
-    Expression(Node* exp, Type type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-    Expression(Node* terminalExp, Type type); //Exp->BOOL/BYTE/INT/NUM
-    Expression(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And / Or Exp
-    ~Expression() = default;
-    Type getType() const { return type; }
-    void setType(Type toSet) { type = toSet; }
-};
 
 

@@ -1,4 +1,4 @@
-#include "SymbolTeble.h"
+#include "SymbolTable.h"
 #include "hw3_output.hpp"
 
 SymbolTable::SymbolTable(int maxOff,bool isloop, string retType = "") : symbols() { 
