@@ -1,6 +1,15 @@
 #include "SymbolTable.h"
 #include "hw3_output.hpp"
 
+
+string upperCase(string str) {
+    for (char& c : str) {
+        c = toupper(c);
+    }
+    return str;
+}
+
+/////////////////////////////////////////////////SymbolTable//////////////////////////////////////////////////////////
 SymbolTable::SymbolTable(int maxOff,bool isloop, string retType = "") : symbols() { 
     currentOffset = maxOff;
     isLoop = isloop;
@@ -43,6 +52,16 @@ void SymbolTable::addSymbol(const Symbol& symbol) {
 }
 
 
+/////////////////////////////////////////////////StackTable//////////////////////////////////////////////////////////
+StackTable::StackTable() {
+    SymbolTable* program = new SymbolTable(0, false);
+    scopes.push_back(program);
+    offsets.push_back(0);
+    program->addSymbol(Symbol("print", 0, true, "void", {"string"}));
+    program->addSymbol(Symbol("printi", 0, true, "void", {"int"}));
+    program->addSymbol(Symbol("readi", 0, true, "int", {"int"}));
+}
+
 void StackTable::pushScope(bool isLoop, string retType) {
     SymbolTable* newScope = new SymbolTable(offsets.back(), isLoop, retType);
     //SymbolTable* temp = scopes.back(); ///temp is the current scope
@@ -52,8 +71,6 @@ void StackTable::pushScope(bool isLoop, string retType) {
 
 void StackTable::popScope() {
     SymbolTable* temp = scopes.back();
-    //scopes.pop_back();
-    //offsets.pop_back();
     output::endScope();
     for (Symbol* symbol : temp->symbols) {
         string name = symbol->getName();

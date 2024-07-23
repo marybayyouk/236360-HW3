@@ -3,12 +3,7 @@
 
 extern int yylineno;
 extern StackTable scopes;
-
 using namespace std;
-
-
-/////////// MAYBE WE NEED TO USE DYNAMIC CAST FOR RECRUSIVE RULES, EXAMPLE: EXP->EXP SC
-
 
 vector<string> convertVectorToUpperCase(vector<string> toUpper) {
     vector<string> toRet;
@@ -16,6 +11,16 @@ vector<string> convertVectorToUpperCase(vector<string> toUpper) {
         toRet.push_back(upperCase(name));
     }
     return toRet;
+}
+
+bool LegalType(string typeOne, string typeTwo) {
+    if (typeOne == "INT" && typeTwo == "BYTE") {
+        return true;
+    } else if (typeOne == typeTwo) {
+        return true;
+    }
+    // need to check 3rd legal assignment (byte) (int) with casting
+    return false;
 }
 
 //////////////////////////////////////////Expression//////////////////////////////////////////
@@ -90,12 +95,15 @@ Expression::Expression(Node* leftExp, Node* rightExp, string op) {
 Expression::Expression(Node* leftExp, Node* rightExp, string op) {
     Expression* left = dynamic_cast<Expression *> (leftExp);
     Expression* right = dynamic_cast<Expression *> (rightExp);
-    if (left->getType() != "INT" || left->getType() != "BYTE" || right->getType() != "INT" || right->getType() != "BYTE") {
+    string lType = left->getType();
+    string rType = right->getType();
+
+    if (lType != "INT" || lType != "BYTE" || rType != "INT" || rType != "BYTE") {
         output::errorMismatch(yylineno);
         exit(0);
     }
     if (op == "BINOP") {
-        if (left->getType() == "BYTE" && right->getType() == "BYTE") {
+        if (lType == "BYTE" && rType == "BYTE") {
             setType("BYTE");
         } else {
             setType("INT");
@@ -158,17 +166,6 @@ Statement::Statement(string type, Node * id) {
     }
     scopes.addSymbolToProgram(id->getValue(), false, type, {});
     setValue(type);
-}
-
-
-bool LegalType(string typeOne, string typeTwo ) {
-    if (typeOne == "INT" && typeTwo == "BYTE") {
-        return true;
-    } else if (typeOne == typeTwo) {
-        return true;
-    }
-    // need to check 3rd legal assignment (byte) (int) with casting
-    return false;
 }
 
 // Statement -> Type ID Assign Exp SC

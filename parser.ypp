@@ -44,9 +44,9 @@ Statement: LBRACE {stackTable.pushScope(false, null)} Statements {stackTable.pop
 
 Call:   ID LPAREN Exp RPAREN                                           { $$ = new Call($1, dynamic_cast<Expression*>($3));} 
 
-Type:   INT                                                            {}
-        | BYTE                                                         {} 
-        | BOOL                                                         {}
+Type:   INT                                                            { $$ = new Type("INT") }
+        | BYTE                                                         { $$ = new Type("BYTE") } 
+        | BOOL                                                         { $$ = new Type("BOOL") }
 
 Exp:    LPAREN Exp RPAREN                                              { $$ = new Expression(dynamic_cast<Expression*>($2)); }      
         | Exp ADD Exp                                                  { $$ = new Expression(dynamic_cast<Expression*>($1), dynamic_cast<Expression*>($3), "BINOP"); }

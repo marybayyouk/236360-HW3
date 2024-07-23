@@ -1,17 +1,9 @@
 #include <string>
 #include "SymbolTable.h"
 using std::vector;
-///using std::string
 
 vector<string> convertVectorToUpperCase(vector<string> toUpper);
-
-/*enum TypeEnum {
-    INT,
-    BYTE,
-    BOOL,
-    STRING,
-    VOID
-};*/
+bool LegalType(string typeOne, string typeTwo);
 
 class Node {
     std::string value;
@@ -29,23 +21,10 @@ public:
 
 class Type : public Node {
 public:
-    Type(std::string name) : Node(name,"") {};
+    Type(std::string type) : Node("",type) {};
 };
 
-// //const std::string typeToString[] = {"INT", "BYTE", "BOOL","STRING","VOID"};
-// //b3ref eno 5ara shel code 
-// Type stringToType(const std::string& typeStr) {
-//     if (typeStr == "INT") return Type::INT;
-//     if (typeStr == "BYTE") return Type::BYTE;
-//     if (typeStr == "BOOL") return Type::BOOL;
-//     if (typeStr == "STRING") return Type::STRING;
-//     return Type::VOID;
-// }
-
-
-
 class Expression : public Node {
-    //Type type;
 public:
     Expression();
     Expression(Node* exp, bool _); //𝐸𝑥𝑝 → Not Exp
@@ -56,8 +35,6 @@ public:
     Expression(Node* terminalExp, string type); //Exp->BOOL/BYTE/INT/NUM/STRING
     Expression(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And / Or Exp
     ~Expression() = default;
-    //Type getType() const { return type; }
-    //void setType(Type toSet) { type = toSet; }
 };
 
 class Call : public Node {
@@ -66,18 +43,12 @@ public:
     ~Call() = default;
 };
 
-class Program : public Node {
-public:
-    Program() {};
-    ~Program() = default;
-};
-
 class Statement : public Node {
 public:
     Statement() {};
     Statement(std::string value); // Statement -> BREAK / CONTINUE
     Statement(Call * call); // Statement -> Call SC
-    Statement(string type,Node * id ); // Statement -> Type ID SC  
+    Statement(string type,Node * id); // Statement -> Type ID SC  
     Statement(string type, Node * id, Expression * exp); // Statement -> Type ID Assign Exp SC
     Statement(Node * id, Expression * exp); // Statement -> ID Assign Exp SC
     Statement(Statments* Statments); // Statement -> { Statements }
@@ -89,6 +60,12 @@ class Statments : public Node {
     Statments(Statement* Statement) : Node() {};
     Statments (Statement* Statement, Statments* Statments) : Node() {};
     ~Statments() = default;
+};
+
+class Program : public Node {
+public:
+    Program() {};
+    ~Program() = default;
 };
 
 
