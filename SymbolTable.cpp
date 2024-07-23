@@ -45,14 +45,15 @@ void SymbolTable::addSymbol(const Symbol& symbol) {
 
 void StackTable::pushScope(bool isLoop, string retType) {
     SymbolTable* newScope = new SymbolTable(offsets.back(), isLoop, retType);
-    SymbolTable* temp = scopes.back(); ///temp is the current scope
-    offsets.push_back(temp->getOffset()); 
+    //SymbolTable* temp = scopes.back(); ///temp is the current scope
+    if (scopes.size() > 0)
+        offsets.push_back(scopes.back()->getOffset()); 
 }
 
 void StackTable::popScope() {
     SymbolTable* temp = scopes.back();
-    scopes.pop_back();
-    offsets.pop_back();
+    //scopes.pop_back();
+    //offsets.pop_back();
     output::endScope();
     for (Symbol* symbol : temp->symbols) {
         string name = symbol->getName();
@@ -70,6 +71,9 @@ void StackTable::popScope() {
         }
     }
     delete temp;
+    if (scopes.size() > 0) {
+        scopes.pop_back();
+    }
     if (offsets.size() > 0) {
         offsets.pop_back();
     }
@@ -95,14 +99,13 @@ Symbol* StackTable::findSymbol(const string& name) {
 }
 
 void StackTable::addSymbolToProgram(const string& name, bool isFunc, const string& type, vector<string> names) {
-    SymbolTable* scope = scopes.back();
     int newOffset = 0;
     if(!isFunc) {
         newOffset = offsets.back();
-        offsets.push_back(newOffset + 1);
+        offsets.push_back(newOffset + 1); ////do we really need to push_back?
     }
     Symbol newSymbol(name, newOffset, isFunc, type, names);
-    scope->addSymbol(newSymbol);
+    scopes.back()->addSymbol(newSymbol);
 }
 
 SymbolTable* StackTable::getScope(){

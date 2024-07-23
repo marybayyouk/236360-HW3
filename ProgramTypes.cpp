@@ -19,25 +19,25 @@ vector<string> convertVectorToUpperCase(vector<string> toUpper) {
 }
 
 //////////////////////////////////////////Expression//////////////////////////////////////////
-Expression::Expression() : Node(""), type(VOID) {};
+Expression::Expression() : Node("","VOID") {};
 
 // 𝐸𝑥𝑝 → 𝑁𝑜𝑡 𝐸𝑥𝑝
-Expression::Expression(Node* exp, bool _) : Node(exp->getValue()) {
+Expression::Expression(Node* exp, bool _) : Node(exp->getValue(), "") {
     Expression* expression = dynamic_cast<Expression *> (exp);
-    if (expression->getType() != BOOL) {
+    if (expression->getType() != "BOOL") {
         output::errorMismatch(yylineno);
         exit(0);
     }
-    setType(BOOL);
+    setType("BOOL");
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
-Expression::Expression(Node *exp) : Node(exp->getValue()) {};
+Expression::Expression(Node *exp) : Node(exp->getValue(), "") {};
 
 // 𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
 Expression::Expression(Call* call) {
     setValue(call->getValue());
-    setType(stringToType(scopes.findSymbol(call->getValue())->getType()));
+    setType(scopes.findSymbol(call->getValue())->getType());
 }
 
 // 𝐸𝑥𝑝 → 𝐼𝐷
@@ -47,13 +47,13 @@ Expression::Expression(Node* terminalExp) {
         exit(0);
     }
     setValue(terminalExp->getValue());
-    setType(stringToType(scopes.findSymbol(terminalExp->getValue())->getType()));
+    setType(scopes.findSymbol(terminalExp->getValue())->getType());
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-Expression::Expression(Node* toExp, Type type) {
+Expression::Expression(Node* toExp, string type) {
     Expression* exp = dynamic_cast<Expression *> (toExp);
-    if(!LegalType(typeToString[int(exp->getType())], typeToString[int(type)])){
+    if(!LegalType(exp->getType(), type)){
         output::errorMismatch(yylineno);
         exit(0);
     }
@@ -62,9 +62,8 @@ Expression::Expression(Node* toExp, Type type) {
 }
 
 // Exp->BOOL/BYTE/INT/NUM/STRING
-Expression::Expression(Node* terminalExp, Type type1): Node(terminalExp->getValue()) {
-    type = type1;
-    if((type == BYTE) && (stoi(terminalExp->getValue()) > 255)){
+Expression::Expression(Node* terminalExp, string type) : Node(terminalExp->getValue(), type) {
+    if((type == "BYTE") && (stoi(terminalExp->getValue()) > 255)){
         output::errorByteTooLarge(yylineno, terminalExp->getValue());
         exit(0);
     }
@@ -75,41 +74,41 @@ Expression::Expression(Node* terminalExp, Type type1): Node(terminalExp->getValu
 Expression::Expression(Node* leftExp, Node* rightExp, string op) {
     Expression* left = dynamic_cast<Expression *> (leftExp);
     Expression* right = dynamic_cast<Expression *> (rightExp);
-    if (left->getType() != BOOL || right->getType() != BOOL) {
+    if (left->getType() != "BOOL" || right->getType() != "BOOL") {
         output::errorMismatch(yylineno);
         exit(0);
     } 
     if (op == "AND" || op == "OR") {
-        setType(BOOL);
+        setType("BOOL");
     } else {
         output::errorMismatch(yylineno);
         exit(0);
     }
 }
 
-// Exp -> Exp Relop/Binoo Exp
+// Exp -> Exp Relop/Binop Exp
 Expression::Expression(Node* leftExp, Node* rightExp, string op) {
     Expression* left = dynamic_cast<Expression *> (leftExp);
     Expression* right = dynamic_cast<Expression *> (rightExp);
-    if (left->getType() != (INT || BYTE) || right->getType() != (INT || BYTE)) {
+    if (left->getType() != "INT" || left->getType() != "BYTE" || right->getType() != "INT" || right->getType() != "BYTE") {
         output::errorMismatch(yylineno);
         exit(0);
     }
     if (op == "BINOP") {
-        if (left->getType() == BYTE && right->getType() == BYTE) {
-            setType(BYTE);
+        if (left->getType() == "BYTE" && right->getType() == "BYTE") {
+            setType("BYTE");
         } else {
-            setType(INT);
+            setType("INT");
         }
     }
     if (op == "RELOP") {
-        setType(BOOL);
+        setType("BOOL");
     }
 }
 
 //////////////////////////////////////////Call//////////////////////////////////////////
 // Call -> ID LPAREN RPAREN
-Call::Call(Type type, Node* terminalID) : Node(terminalID->getValue()) {
+Call::Call(string type, Node* terminalID) : Node(terminalID->getValue(), "") {
     if (!scopes.isDefinedInProgram(terminalID->getValue())) {
         output::errorUndefFunc(yylineno, terminalID->getValue());
         exit(0);
@@ -122,13 +121,14 @@ Call::Call(Type type, Node* terminalID) : Node(terminalID->getValue()) {
         output::errorPrototypeMismatch(yylineno, terminalID->getValue());
         exit(0);
     }
-    type = stringToType(scopes.findSymbol(terminalID->getValue())->getType());
+    //////I THINK WE SHOULF CHECK MORE CASES FOR EACH 3 POSSIBLE FUNCTION
+    setType(scopes.findSymbol(terminalID->getValue())->getType());
     setValue(scopes.findSymbol(terminalID->getValue())->getName());
 }
 
 //////////////////////////////////////////Statement//////////////////////////////////////////
 // Statement -> BREAK / CONTINUE
-Statement::Statement(std::string value) : Node(value) {
+Statement::Statement(std::string value) : Node(value,"") {
     if (value == "BREAK") {
         if (!scopes.getScope()->getIsLoop()) {
             output::errorUnexpectedBreak(yylineno);
@@ -151,13 +151,13 @@ Statement::Statement(Call * call) : Node() {
 }
 
 //Statement -> Type ID SC 
-Statement::Statement(Type type, Node * id) {
+Statement::Statement(string type, Node * id) {
     if (scopes.isDefinedInProgram(id->getValue())) {
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
-    scopes.addSymbolToProgram(id->getValue(), false, typeToString[(int)type], {});
-    setValue(typeToString[(int)type]);
+    scopes.addSymbolToProgram(id->getValue(), false, type, {});
+    setValue(type);
 }
 
 
@@ -172,16 +172,16 @@ bool LegalType(string typeOne, string typeTwo ) {
 }
 
 // Statement -> Type ID Assign Exp SC
-Statement::Statement(Type type, Node * id, Expression * exp) {
+Statement::Statement(string type, Node * id, Expression * exp) {
     if (scopes.isDefinedInProgram(id->getValue())) {
         output::errorDef(yylineno, id->getValue());
     }
-    if (!LegalType(typeToString[(int)type], exp->getValue())) {
+    if (!LegalType(type, exp->getValue())) {
         output::errorMismatch(yylineno);
         exit(0);
     }
-    setValue(typeToString[(int)type]);
-    scopes.addSymbolToProgram(id->getValue(), false, typeToString[(int)type], {});
+    setValue(type);
+    scopes.addSymbolToProgram(id->getValue(), false, type, {});
 }
 
 // Statement -> ID Assign Exp SC
@@ -190,11 +190,11 @@ Statement::Statement(Node * id, Expression * exp) {
         output::errorUndef(yylineno, id->getValue());
         exit(0);
     }
-    if (!LegalType(scopes.findSymbol(id->getValue())->getType(), typeToString[(int)exp->getType()])) {
+    if (!LegalType(scopes.findSymbol(id->getValue())->getType(), exp->getType())) {
         output::errorMismatch(yylineno);
         exit(0);
     }
-    setValue(typeToString[(int)exp->getType()]);
+    setValue(exp->getType());
 }
 
 // Statement L Statement R 
@@ -203,10 +203,3 @@ Statement::Statement(Statments* Statments) {
     scopes.pushScope(false, "");
 }
 
-// Statement -> IF ( Exp ) Statement
-Statement(Expression* exp) {
-    if (exp->getType() != BOOL) {
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-}
