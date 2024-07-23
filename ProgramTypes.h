@@ -19,6 +19,12 @@ public:
     virtual void print() = 0;
 };
 
+class Call : public Node {
+public:
+    Call(string type, Node* terminalID);
+    ~Call() = default;
+};
+
 class Type : public Node {
 public:
     Type(std::string type) : Node("",type) {};
@@ -30,18 +36,14 @@ public:
     Expression(Node* exp, bool _); //𝐸𝑥𝑝 → Not Exp
     Expression(Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
     Expression(Call* call); //𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
-    Expression(Node* terminalExp); //𝐸𝑥𝑝 → 𝐼𝐷
+    Expression(Node* terminalExp, int mode); //𝐸𝑥𝑝 → 𝐼𝐷
     Expression(Node* exp, string type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
     Expression(Node* terminalExp, string type); //Exp->BOOL/BYTE/INT/NUM/STRING
     Expression(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And / Or Exp
     ~Expression() = default;
 };
 
-class Call : public Node {
-public:
-    Call(string type, Node* terminalID);
-    ~Call() = default;
-};
+
 
 class Statement : public Node {
 public:

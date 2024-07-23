@@ -46,7 +46,7 @@ Expression::Expression(Call* call) {
 }
 
 // 𝐸𝑥𝑝 → 𝐼𝐷
-Expression::Expression(Node* terminalExp) {
+Expression::Expression(Node* terminalExp, int mode) {
     if (!scopes.isDefinedInProgram(terminalExp->getValue())){
         output::errorUndef(yylineno, terminalExp->getValue());
         exit(0);
