@@ -76,8 +76,6 @@ public:
     void addSymbolToProgram(const string& name, bool isFunc, const string& type, vector<string> names);
     SymbolTable* getScope();
     Symbol* findSymbol(const string& symName);
-    
-
 };
 
 
