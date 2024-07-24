@@ -104,6 +104,17 @@ Exp::Exp(Node* leftExp, Node* rightExp, string op) {
         }
     }
 }
+////////////////////////////////////////NumB////////////////////////////////////////////////////
+NumB::NumB(Node* expression) : Exp(expression->getValue(), "byte") {
+        if (stoi(expression->getValue()) >= 256) {
+            output::errorByteTooLarge(yylineno, expression->getValue());
+            exit(0);
+        }
+    }
+
+
+
+
 
 //////////////////////////////////////////Call//////////////////////////////////////////
 // Call -> ID LPAREN RPAREN

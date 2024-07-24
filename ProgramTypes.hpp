@@ -2,6 +2,7 @@
 #include "SymbolTable.h"
 using std::vector;
 
+
 vector<string> convertVectorToUpperCase(vector<string> toUpper);
 bool LegalType(string typeOne, string typeTwo);
 
@@ -10,7 +11,7 @@ class Node {
     std::string type;
 public:
     Node() : value(""),type("") {};
-    Node(char* value, char* type = "") : value(value), type(type) { };
+    //Node(char* value, char* type = "") : value(value), type(type) { };
     Node(std::string value,std::string type = "" ) : value(value), type(type) { };
     std::string getValue() const { return value; }
     std::string getType() const { return type; }
@@ -27,32 +28,27 @@ public:
     Exp(Call* call); //𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
     Exp(Node* terminalExp, int mode); //𝐸𝑥𝑝 → 𝐼𝐷
     Exp(Node* exp, Type* type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-    //Exp(Node* terminalExp, Type* type); //Exp->BOOL/BYTE/INT/NUM/STRING
     Exp(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And/Or/Relop/Binop Exp
+    Exp(string value, string type) : Node(value,type) {} ///FOR CHILD C'TORS
     ~Exp() = default;
 };
 
 class Bool: public Exp {
 public:
-    Bool(Node* exp) :  Exp(exp->getValue(), "bool") {}
+    Bool(Node* expression) : Exp(expression->getValue(), "bool") {}
 };
 
 class Num: public Exp 
 {
 public:
 
-    Num(Node* exp) : Exp(exp->getvalue(), "int") {}
+    Num(Node* exp) : Exp(exp->getValue(), "int") {}
 };
 
 
 class NumB: public Exp {
 public:
-    NumB(Node* expression) : Exp(expression->getValue(), "byte") {
-        if (stoi(expression->getValue()) >= 256) {
-            output::errorByteTooLarge(yylineno, expression->getValue());
-            exit(0);
-        }
-    }
+    NumB(Node* expression);
 };
 
 class String: public Exp {
