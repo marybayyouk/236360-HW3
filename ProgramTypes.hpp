@@ -10,13 +10,13 @@ class Node {
     std::string type;
 public:
     Node() : value(""),type("") {};
-    Node(std::string value,std::string type) : value(value), type(type) { };
+    Node(char* value, char* type = "") : value(value), type(type) { };
+    Node(std::string value,std::string type = "" ) : value(value), type(type) { };
     std::string getValue() const { return value; }
     std::string getType() const { return type; }
     void setValue(std::string value) { this->value = value; }
     void setType(std::string type) { this->type = type; }
     virtual ~Node() {};
-    virtual void print() = 0;
 };
 
 class Call : public Node {
@@ -30,17 +30,17 @@ public:
     Type(std::string type) : Node("",type) {};
 };
 
-class Expression : public Node {
+class Exp : public Node {
 public:
-    Expression();
-    Expression(Node* exp, bool _); //𝐸𝑥𝑝 → Not Exp
-    Expression(Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
-    Expression(Call* call); //𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
-    Expression(Node* terminalExp, int mode); //𝐸𝑥𝑝 → 𝐼𝐷
-    Expression(Node* exp, Type* type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-    Expression(Node* terminalExp, string type); //Exp->BOOL/BYTE/INT/NUM/STRING
-    Expression(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And/Or/Relop/Binop Exp
-    ~Expression() = default;
+    Exp();
+    Exp(Node* exp, bool _); //𝐸𝑥𝑝 → Not Exp
+    Exp(Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
+    Exp(Call* call); //𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
+    Exp(Node* terminalExp, int mode); //𝐸𝑥𝑝 → 𝐼𝐷
+    Exp(Node* exp, Type* type); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
+    Exp(Node* terminalExp, string type); //Exp->BOOL/BYTE/INT/NUM/STRING
+    Exp(Node* leftExp, Node* rightExp, string op); // Exp -> Exp And/Or/Relop/Binop Exp
+    ~Exp() = default;
 };
 
 
@@ -51,10 +51,10 @@ public:
     Statement(std::string value); // Statement -> BREAK / CONTINUE
     Statement(Call * call); // Statement -> Call SC
     Statement(string type,Node * id); // Statement -> Type ID SC  
-    Statement(string type, Node * id, Expression * exp); // Statement -> Type ID Assign Exp SC
-    Statement(Node * id, Expression * exp); // Statement -> ID Assign Exp SC
+    Statement(string type, Node * id, Exp * exp, bool flag); // Statement -> Type ID Assign Exp SC
+    Statement(Node * id, Exp * exp); // Statement -> ID Assign Exp SC
     //Statement(Statments* Statments); // Statement -> { Statements }
-    Statement(Expression* exp); // Statement -> IF ( Exp ) Statement
+    Statement(Exp* exp); // Statement -> IF ( Exp ) Statement
 };
 
 class Statements : public Node {

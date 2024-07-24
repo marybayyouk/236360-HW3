@@ -23,13 +23,13 @@ bool LegalType(string typeOne, string typeTwo) {
     return false;
 }
 
-//////////////////////////////////////////Expression//////////////////////////////////////////
-Expression::Expression() : Node("","VOID") {};
+//////////////////////////////////////////Exp//////////////////////////////////////////
+Exp::Exp() : Node("","VOID") {};
 
 // 𝐸𝑥𝑝 → 𝑁𝑜𝑡 𝐸𝑥𝑝
-Expression::Expression(Node* exp, bool _) : Node(exp->getValue(), "") {
-    Expression* expression = dynamic_cast<Expression *> (exp);
-    if (expression->getType() != "BOOL") {
+Exp::Exp(Node* exp, bool _) : Node(exp->getValue(), "") {
+    Exp* Exp = dynamic_cast< Exp* > (exp);
+    if (Exp->getType() != "BOOL") {
         output::errorMismatch(yylineno);
         exit(0);
     }
@@ -37,16 +37,16 @@ Expression::Expression(Node* exp, bool _) : Node(exp->getValue(), "") {
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
-Expression::Expression(Node *exp) : Node(exp->getValue(), "") {};
+Exp::Exp(Node *exp) : Node(exp->getValue(), "") {};
 
 // 𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
-Expression::Expression(Call* call) {
+Exp::Exp(Call* call) {
     setValue(call->getValue());
     setType(scopes.findSymbol(call->getValue())->getType());
 }
 
 // 𝐸𝑥𝑝 → 𝐼𝐷
-Expression::Expression(Node* terminalExp, int mode) {
+Exp::Exp(Node* terminalExp, int mode) {
     if (!scopes.isDefinedInProgram(terminalExp->getValue())){
         output::errorUndef(yylineno, terminalExp->getValue());
         exit(0);
@@ -56,8 +56,8 @@ Expression::Expression(Node* terminalExp, int mode) {
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-Expression::Expression(Node* toExp, Type* type) {
-    Expression* exp = dynamic_cast<Expression *> (toExp);
+Exp::Exp(Node* toExp, Type* type) {
+    Exp* exp = dynamic_cast<Exp *> (toExp);
     if(!LegalType(exp->getType(), type->getType())){
         output::errorMismatch(yylineno);
         exit(0);
@@ -67,7 +67,7 @@ Expression::Expression(Node* toExp, Type* type) {
 }
 
 // Exp->BOOL/BYTE/INT/NUM/STRING
-Expression::Expression(Node* terminalExp, string type) : Node(terminalExp->getValue(), type) {
+Exp::Exp(Node* terminalExp, string type) : Node(terminalExp->getValue(), type) {
     if((type == "BYTE") && (stoi(terminalExp->getValue()) > 255)){
         output::errorByteTooLarge(yylineno, terminalExp->getValue());
         exit(0);
@@ -76,9 +76,9 @@ Expression::Expression(Node* terminalExp, string type) : Node(terminalExp->getVa
 
 
 // Exp -> Exp And/Or/Relop/Binop Exp
-Expression::Expression(Node* leftExp, Node* rightExp, string op) {
-    Expression* left = dynamic_cast<Expression *> (leftExp);
-    Expression* right = dynamic_cast<Expression *> (rightExp);
+Exp::Exp(Node* leftExp, Node* rightExp, string op) {
+    Exp* left = dynamic_cast<Exp *> (leftExp);
+    Exp* right = dynamic_cast<Exp *> (rightExp);
     string lType = left->getType();
     string rType = right->getType();
 
@@ -159,21 +159,28 @@ Statement::Statement(string type, Node * id) {
     setValue(type);
 }
 
-// Statement -> Type ID Assign Exp SC
-Statement::Statement(string type, Node * id, Expression * exp) {
-    if (scopes.isDefinedInProgram(id->getValue())) {
-        output::errorDef(yylineno, id->getValue());
+Statement::Statement(string type, Node * id, Exp * exp, bool flag){
+    if (flag) {
+        if (!scopes.isDefinedInProgram(id->getValue())) {
+            output::errorUndef(yylineno, id->getValue());
+            exit(0);
+        }
+        if (!LegalType(scopes.findSymbol(id->getValue())->getType(), exp->getType())) {
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
+        setValue(exp->getType());
+    } else {
+        // means we are working with IF else Statements
+        if (exp->getType() != "BOOL") {
+            output::errorMismatch(yylineno);
+            exit(0);
+        } 
     }
-    if (!LegalType(type, exp->getValue())) {
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-    setValue(type);
-    scopes.addSymbolToProgram(id->getValue(), false, type, {});
 }
 
 // Statement -> ID Assign Exp SC
-Statement::Statement(Node * id, Expression * exp) {
+Statement::Statement(Node * id, Exp * exp) {
     if (!scopes.isDefinedInProgram(id->getValue())) {
         output::errorUndef(yylineno, id->getValue());
         exit(0);

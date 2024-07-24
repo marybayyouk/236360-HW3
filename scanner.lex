@@ -1,7 +1,7 @@
 %{
 #include "hw3_output.hpp"
 #include "parser.tab.hpp"
-
+#include "ProgramTypes.hpp"
 %}
 
 %option noyywrap
@@ -13,6 +13,7 @@ whitespace	      ([\t\n\r ])
 ID               {letter}({letter}|{digit})*
 
 %%
+
 int             { yylval = new Node(yytext); return INT; }
 byte            { yylval = new Node(yytext); return BYTE; }
 b               { yylval = new Node(yytext); return B; }
