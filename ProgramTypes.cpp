@@ -1,4 +1,4 @@
-#include "ProgramTypes.h"
+#include "ProgramTypes.hpp"
 #include "hw3_output.hpp"
 
 extern int yylineno;
@@ -56,13 +56,13 @@ Expression::Expression(Node* terminalExp, int mode) {
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-Expression::Expression(Node* toExp, string type) {
+Expression::Expression(Node* toExp, Type* type) {
     Expression* exp = dynamic_cast<Expression *> (toExp);
-    if(!LegalType(exp->getType(), type)){
+    if(!LegalType(exp->getType(), type->getType())){
         output::errorMismatch(yylineno);
         exit(0);
     }
-    setType(type);
+    setType(type->getType());
     setValue(exp->getValue());
 }
 
@@ -75,42 +75,33 @@ Expression::Expression(Node* terminalExp, string type) : Node(terminalExp->getVa
 }
 
 
-// Exp -> Exp And / Or Exp
-Expression::Expression(Node* leftExp, Node* rightExp, string op) {
-    Expression* left = dynamic_cast<Expression *> (leftExp);
-    Expression* right = dynamic_cast<Expression *> (rightExp);
-    if (left->getType() != "BOOL" || right->getType() != "BOOL") {
-        output::errorMismatch(yylineno);
-        exit(0);
-    } 
-    if (op == "AND" || op == "OR") {
-        setType("BOOL");
-    } else {
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-}
-
-// Exp -> Exp Relop/Binop Exp
+// Exp -> Exp And/Or/Relop/Binop Exp
 Expression::Expression(Node* leftExp, Node* rightExp, string op) {
     Expression* left = dynamic_cast<Expression *> (leftExp);
     Expression* right = dynamic_cast<Expression *> (rightExp);
     string lType = left->getType();
     string rType = right->getType();
 
-    if (lType != "INT" || lType != "BYTE" || rType != "INT" || rType != "BYTE") {
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-    if (op == "BINOP") {
-        if (lType == "BYTE" && rType == "BYTE") {
-            setType("BYTE");
-        } else {
-            setType("INT");
+    if (op == "AND" || op == "OR") {
+        if (lType != "BOOL" || rType != "BOOL") {
+            output::errorMismatch(yylineno);
+            exit(0);
+        } 
+        setType("BOOL");  
+    } else { ///IT IS RELOP OR BINOP
+        if (lType != "INT" || lType != "BYTE" || rType != "INT" || rType != "BYTE") {
+            output::errorMismatch(yylineno);
+            exit(0);
         }
-    }
-    if (op == "RELOP") {
-        setType("BOOL");
+        if (op == "BINOP"){
+            if (lType == "BYTE" && rType == "BYTE") {
+                setType("BYTE");
+            } 
+            else { setType("INT"); }
+        }
+        if (op == "RELOP") {
+            setType("BOOL");
+        }
     }
 }
 
@@ -194,9 +185,9 @@ Statement::Statement(Node * id, Expression * exp) {
     setValue(exp->getType());
 }
 
-// Statement L Statement R 
-Statement::Statement(Statments* Statments) {
-    //open new scope
-    scopes.pushScope(false, "");
-}
+// // Statement L Statement R 
+// Statement::Statement(Statments* Statments) {
+//     //open new scope
+//     scopes.pushScope(false, "");
+// }
 

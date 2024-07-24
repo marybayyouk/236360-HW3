@@ -26,18 +26,18 @@ Program: Statements                                                    { stackTa
 Statements: Statement                                                  { $$ = new Statements(dynamic_cast<Statement*>($1)); }
             | Statements Statement                                     { $$ = new Statements(dynamic_cast<Statements*>($1), dynamic_cast<Statement*>($2)); } 
                                                                         
-Statement: LBRACE {stackTable.pushScope(false, null)} Statements {stackTable.popScope()} RBRACE 
+Statement: LBRACE ADDSCOPE Statements REMOVESCOPE RBRACE 
                                                                        { $$ = new Statement(dynamic_cast<Statements*>($2)); } 
-            | Type ID SC                                               { $$ = new Statement(typeToString($1), $2); }
-            | Type ID ASSIGN Exp SC                                    { $$ = new Statement(typeToString($1), $2, dynamic_cast<Expression*>($4), true); } 
+            | Type ID SC                                               { $$ = new Statement($1, $2); }
+            | Type ID ASSIGN Exp SC                                    { $$ = new Statement($1, $2, dynamic_cast<Expression*>($4), true); } 
             | ID ASSIGN Exp SC                                         { $$ = new Statement($1, dynamic_cast<Expression*>($3)); } 
             | Call SC                                                  { $$ = new Statement(dynamic_cast<Call*>($1)); }
             | RETURN SC                                                {} 
-            | IF LPAREN Exp RPAREN {stackTable.pushScope(false, null)} Statement %prec IF                  
+            | IF LPAREN Exp RPAREN ADDSCOPE Statement %prec IF                  
                                                                        { $$ = new Statement(null, dynamic_cast<Expression*>($3), false); stackTable.popScope(); }
-            | IF LPAREN Exp RPAREN {stackTable.pushScope(false, null)} Statement ELSE Statement            
+            | IF LPAREN Exp RPAREN ADDSCOPE Statement ELSE Statement            
                                                                        { $$ = new Statement(null, dynamic_cast<Expression*>($3), false); stackTable.popScope(); }
-            | WHILE LPAREN Exp RPAREN {stackTable.pushScope(true,null)} Statement                        
+            | WHILE LPAREN Exp RPAREN ADDSCOPE Statement                        
                                                                        { $$ = new Statement(null, dynamic_cast<Expression*>($3), false); stackTable.popScope(); } 
             | BREAK SC                                                 { $$ = new Statement(dynamic_cast<Node*>($1)->getValue())}
             | CONTINUE SC                                              { $$ = new Statement(dynamic_cast<Node*>($1)->getValue())}
@@ -65,10 +65,21 @@ Exp:    LPAREN Exp RPAREN                                              { $$ = ne
         | Exp OR Exp                                                   { $$ = new Expression(dynamic_cast<Expression*>($1), dynamic_cast<Expression*>($3), "RELOP"); }
         | Exp ISEQUAL Exp                                              { $$ = new Expression(dynamic_cast<Expression*>($1), dynamic_cast<Expression*>($3), "RELOP"); }
         | Exp RELOP Exp                                                { $$ = new Expression(dynamic_cast<Expression*>($1), dynamic_cast<Expression*>($3), "RELOP"); }
-        | LPAREN Type RPAREN Exp                                       { $$ = new Expression(dynamic_cast<Expression*>($4), typeToString($2)); }
+        | LPAREN Type RPAREN Exp                                       { $$ = new Expression(dynamic_cast<Expression*>($4), $2); }
 
+;
+///pushScope///
+ADDSCOPE:                                                               {
+                                                                            stackTable.pushScope(false,null)
+                                                                        }
+;
+///popScope///
+REMOVESCOPE:                                                            {
+                                                                            stackTable.popScope()
+                                                                        }
+;
 %%
-StackTable stackTable; = StackTable();
+StackTable stackTable = StackTable();
 
 int yyerror(const char *s) {
     output::errorSyn(yylineno);

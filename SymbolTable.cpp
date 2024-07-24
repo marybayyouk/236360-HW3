@@ -10,7 +10,7 @@ string upperCase(string str) {
 }
 
 /////////////////////////////////////////////////SymbolTable//////////////////////////////////////////////////////////
-SymbolTable::SymbolTable(int maxOff,bool isloop, string retType = "") : symbols() { 
+SymbolTable::SymbolTable(int maxOff,bool isloop, string retType) : symbols() { 
     currentOffset = maxOff;
     isLoop = isloop;
     returnedType = new string(retType);
