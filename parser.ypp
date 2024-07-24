@@ -45,8 +45,8 @@ Statement: LBRACE ADDSCOPE Statements REMOVESCOPE RBRACE               { $$ = ne
                                                                        { $$ = new Statement(null, dynamic_cast<Exp*>($3), false); stackTable.popScope(); }
             | WHILE LPAREN Exp RPAREN ADDSCOPE Statement                        
                                                                        { $$ = new Statement(null, dynamic_cast<Exp*>($3), false); stackTable.popScope(); } 
-            | BREAK SC                                                 { $$ = new Statement(dynamic_cast<Node*>($1)->getValue())}
-            | CONTINUE SC                                              { $$ = new Statement(dynamic_cast<Node*>($1)->getValue())}
+            | BREAK SC                                                 { $$ = new Statement($1); }
+            | CONTINUE SC                                              { $$ = new Statement($1); }
 
 Call:   ID LPAREN Exp RPAREN                                           { $$ = new Call($1, dynamic_cast<Exp*>($3));} 
 
@@ -61,11 +61,11 @@ Exp:    LPAREN Exp RPAREN                                              { $$ = ne
         | Exp MULTIPLY Exp                                             { $$ = new Exp(dynamic_cast<Exp*>($1), dynamic_cast<Exp*>($3), "BINOP"); }
         | ID                                                           { $$ = new Exp($1, 2); } 
         | Call                                                         { $$ = new Exp(dynamic_cast<Call*>($1)); }
-        | NUM                                                          { $$ = new Exp($1, INT); }
-        | NUM B                                                        { $$ = new Exp($1, BYTE); }
-        | STRING                                                       { $$ = new Exp($1, STRING); }
-        | TRUE                                                         { $$ = new Exp($1, BOOL); }
-        | FALSE                                                        { $$ = new Exp($1, BOOL); }
+        | NUM                                                          { $$ = new Num($1); }
+        | NUM B                                                        { $$ = new NumB($1); }
+        | STRING                                                       { $$ = new String($1); }
+        | TRUE                                                         { $$ = new Bool($1); }
+        | FALSE                                                        { $$ = new Bool($1); }
         | NOT Exp                                                      { $$ = new Exp(dynamic_cast<Exp*>($2), true); }
         | Exp AND Exp                                                  { $$ = new Exp(dynamic_cast<Exp*>($1), dynamic_cast<Exp*>($3), "RELOP"); } 
         | Exp OR Exp                                                   { $$ = new Exp(dynamic_cast<Exp*>($1), dynamic_cast<Exp*>($3), "RELOP"); }

@@ -27,9 +27,9 @@ bool LegalType(string typeOne, string typeTwo) {
 Exp::Exp() : Node("","VOID") {};
 
 // 𝐸𝑥𝑝 → 𝑁𝑜𝑡 𝐸𝑥𝑝
-Exp::Exp(Node* exp, bool _) : Node(exp->getValue(), "") {
-    Exp* Exp = dynamic_cast< Exp* > (exp);
-    if (Exp->getType() != "BOOL") {
+Exp::Exp(Exp* exp, bool _) : Node(exp->getValue(), "") {
+    //Exp* Exp = dynamic_cast<Exp*> (exp);
+    if (exp->getType() != "BOOL") {
         output::errorMismatch(yylineno);
         exit(0);
     }
@@ -66,13 +66,13 @@ Exp::Exp(Node* toExp, Type* type) {
     setValue(exp->getValue());
 }
 
-// Exp->BOOL/BYTE/INT/NUM/STRING
-Exp::Exp(Node* terminalExp, string type) : Node(terminalExp->getValue(), type) {
-    if((type == "BYTE") && (stoi(terminalExp->getValue()) > 255)){
-        output::errorByteTooLarge(yylineno, terminalExp->getValue());
-        exit(0);
-    }
-}
+// // Exp->BOOL/BYTE/INT/NUM/STRING
+// Exp::Exp(Node* terminalExp, Type* type) : Node(terminalExp->getValue(), type->getType()) {
+//     if((type->getType() == "BYTE") && (stoi(terminalExp->getValue()) > 255)){
+//         output::errorByteTooLarge(yylineno, terminalExp->getValue());
+//         exit(0);
+//     }
+// }
 
 
 // Exp -> Exp And/Or/Relop/Binop Exp
@@ -127,13 +127,13 @@ Call::Call(string type, Node* terminalID) : Node(terminalID->getValue(), "") {
 
 //////////////////////////////////////////Statement//////////////////////////////////////////
 // Statement -> BREAK / CONTINUE
-Statement::Statement(std::string value) : Node(value,"") {
-    if (value == "BREAK") {
+Statement::Statement(Node* BKNode) : Node(BKNode->getValue(),"") {
+    if (BKNode->getValue() == "BREAK") {
         if (!scopes.getScope()->getIsLoop()) {
             output::errorUnexpectedBreak(yylineno);
             exit(0);
         }
-    } else if (value == "CONTINUE") {
+    } else if (BKNode->getValue() == "CONTINUE") {
         if (!scopes.getScope()->getIsLoop()) {
             output::errorUnexpectedContinue(yylineno);
             exit(0);
@@ -150,16 +150,16 @@ Statement::Statement(Call * call) : Node() {
 }
 
 //Statement -> Type ID SC 
-Statement::Statement(string type, Node * id) {
+Statement::Statement(Type* type, Node * id) {
     if (scopes.isDefinedInProgram(id->getValue())) {
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
-    scopes.addSymbolToProgram(id->getValue(), false, type, {});
-    setValue(type);
+    scopes.addSymbolToProgram(id->getValue(), false, type->getType(), {});
+    setValue(type->getType());
 }
 
-Statement::Statement(string type, Node * id, Exp * exp, bool flag){
+Statement::Statement(Type* type, Node * id, Exp * exp, bool flag){
     if (flag) {
         if (!scopes.isDefinedInProgram(id->getValue())) {
             output::errorUndef(yylineno, id->getValue());
@@ -198,3 +198,9 @@ Statement::Statement(Node * id, Exp * exp) {
 //     scopes.pushScope(false, "");
 // }
 
+Statement::Statement(string str, Exp* exp) {
+    if(exp->getType() != "BOOL"){
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+}
