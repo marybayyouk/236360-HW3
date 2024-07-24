@@ -84,7 +84,7 @@ public:
 class Statements : public Node {
     public:
     Statements(Statement* Statement) {};
-    Statements (Statement* Statement, Statements* Statments){};
+    Statements (Statements* Statements, Statement* Statment){};
     ~Statements() = default;
 };
 
