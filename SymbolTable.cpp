@@ -40,6 +40,7 @@ Symbol* SymbolTable::findSymbol(const string& name){
             return symbol;
         }
     }
+    return nullptr;
 }
 
 void SymbolTable::addSymbol(const Symbol& symbol) {

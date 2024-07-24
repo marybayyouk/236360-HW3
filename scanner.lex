@@ -1,7 +1,7 @@
 %{
 #include "hw3_output.hpp"
-#include "parser.tab.hpp"
 #include "ProgramTypes.hpp"
+#include "parser.tab.hpp"
 %}
 
 %option noyywrap

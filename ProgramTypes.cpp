@@ -29,6 +29,9 @@ Exp::Exp() : Node("","VOID") {};
 // 𝐸𝑥𝑝 → 𝑁𝑜𝑡 𝐸𝑥𝑝
 Exp::Exp(Exp* exp, bool _) : Node(exp->getValue(), "") {
     //Exp* Exp = dynamic_cast<Exp*> (exp);
+    if (_ == false && !scopes.isDefinedInProgram(exp->getValue())){
+        output::errorUndef(yylineno, exp->getValue());
+    }
     if (exp->getType() != "BOOL") {
         output::errorMismatch(yylineno);
         exit(0);
@@ -37,27 +40,30 @@ Exp::Exp(Exp* exp, bool _) : Node(exp->getValue(), "") {
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
-Exp::Exp(Node *exp) : Node(exp->getValue(), "") {};
+//Exp::Exp(Node *exp) : Node(exp->getValue(), "") {};
 
-// 𝐸𝑥𝑝 → 𝐶𝑎𝑙𝑙
-Exp::Exp(Call* call) {
-    setValue(call->getValue());
-    setType(scopes.findSymbol(call->getValue())->getType());
-}
 
-// 𝐸𝑥𝑝 → 𝐼𝐷
-Exp::Exp(Node* terminalExp, int mode) {
-    if (!scopes.isDefinedInProgram(terminalExp->getValue())){
+// 𝐸𝑥𝑝 → 𝐼𝐷/CALL
+Exp::Exp(Node* terminalExp, string rule) {
+    if (rule == "ID") {
+        if (!scopes.isDefinedInProgram(terminalExp->getValue())){
         output::errorUndef(yylineno, terminalExp->getValue());
         exit(0);
+        }
+        setValue(terminalExp->getValue());
+        setType(scopes.findSymbol(terminalExp->getValue())->getType());
+    } 
+    else if (rule == "CALL") {
+        setValue(terminalExp->getValue());
+        setType(scopes.findSymbol(terminalExp->getValue())->getType());
+        isFunction = true;
     }
-    setValue(terminalExp->getValue());
-    setType(scopes.findSymbol(terminalExp->getValue())->getType());
 }
+    
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
-Exp::Exp(Node* toExp, Type* type) {
-    Exp* exp = dynamic_cast<Exp *> (toExp);
+Exp::Exp(Type* type, Exp* exp) {
+    //Exp* exp = dynamic_cast<Exp *> (toExp);
     if(!LegalType(exp->getType(), type->getType())){
         output::errorMismatch(yylineno);
         exit(0);
@@ -76,7 +82,7 @@ Exp::Exp(Node* toExp, Type* type) {
 
 
 // Exp -> Exp And/Or/Relop/Binop Exp
-Exp::Exp(Node* leftExp, Node* rightExp, string op) {
+Exp::Exp(Node* leftExp, Node* rightExp, const string op) {
     Exp* left = dynamic_cast<Exp *> (leftExp);
     Exp* right = dynamic_cast<Exp *> (rightExp);
     string lType = left->getType();
@@ -111,10 +117,6 @@ NumB::NumB(Node* expression) : Exp(expression->getValue(), "byte") {
             exit(0);
         }
     }
-
-
-
-
 
 //////////////////////////////////////////Call//////////////////////////////////////////
 // Call -> ID LPAREN RPAREN
