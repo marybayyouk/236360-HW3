@@ -42,13 +42,12 @@ Symbol* SymbolTable::findSymbol(const string& name){
     return nullptr;
 }
 
-void SymbolTable::addSymbol(const Symbol& symbol) {
-    if(!isDefinedInTable(symbol.getName())) {
+void SymbolTable::addSymbol(Symbol* symbol) {
+    if(isDefinedInTable(symbol->getName())) {
         return;
     }
-    Symbol* newSymbol = new Symbol(symbol);
-    symbols.push_back(newSymbol);
-    currentOffset = newSymbol->getOffset() ;
+    symbols.push_back(symbol);
+    currentOffset = symbol->getOffset() ;
 }
 
 
@@ -57,9 +56,12 @@ StackTable::StackTable() {
     SymbolTable* program = new SymbolTable(0, false);
     scopes.push_back(program);
     offsets.push_back(0);
-    program->addSymbol(Symbol("print", 0, true, "void", {"string"}));
-    program->addSymbol(Symbol("printi", 0, true, "void", {"int"}));
-    program->addSymbol(Symbol("readi", 0, true, "int", {"int"}));
+    Symbol * printS = new Symbol("print", 0, true, "void", {"string"});
+    Symbol * printIs = new Symbol("printi", 0, true, "void", {"int"});
+    Symbol * readIs = new Symbol("readi", 0, true, "int", {"int"});
+    program->addSymbol(printS);
+    program->addSymbol(printIs);
+    program->addSymbol(readIs);
 }
 
 StackTable::~StackTable() {
@@ -127,11 +129,8 @@ void StackTable::addSymbolToProgram(const string& name, bool isFunc, const strin
         newOffset = offsets.back();
         offsets.push_back(newOffset + 1); 
     }
-    Symbol newSymbol(name, newOffset, isFunc, type, names);
+    Symbol * newSymbol = new Symbol(name, newOffset, isFunc, type, names);
     scopes.back()->addSymbol(newSymbol);
-    for (Symbol *symbol : scopes.back()->symbols) {
-        std::cout << symbol->getName() << std::endl;
-    }
 }
 
 SymbolTable* StackTable::getScope(){

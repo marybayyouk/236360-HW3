@@ -25,7 +25,6 @@ public:
 class Type : public Node {
 public:
     Type(std::string type) : Node("",type) {    
-        std::cout<<"type init" << type<<std::endl;
         };
 };
 
@@ -53,20 +52,19 @@ public:
 class iD : public Node {
 public:
     iD(Node* id) : Node(id->getValue(), "ID") {
-        std::cout <<"in ID " <<id->getValue()<<std::endl;
     }
 };
 
 class Bool: public Exp {
 public:
-    Bool(Node* expression) : Exp(expression->getValue(), "bool") {}
+    Bool(Node* expression) : Exp(expression->getValue(), "BOOL") {}
 };
 
 class Num: public Exp 
 {
 public:
 
-    Num(Node* exp) : Exp(exp->getValue(), "int") {}
+    Num(Node* exp) : Exp(exp->getValue(), "INT") {}
 };
 
 
@@ -77,7 +75,7 @@ public:
 
 class String: public Exp {
 public:
-    String(Node* exp) : Exp(exp->getValue(), "string") {}
+    String(Node* exp) : Exp(exp->getValue(), "STRING") {}
 };
 
 

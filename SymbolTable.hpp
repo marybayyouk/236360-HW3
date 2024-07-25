@@ -47,7 +47,7 @@ public:
     string getReturnedType() const { return *returnedType; }
     bool isDefinedInTable(const string& name);
     Symbol* findSymbol(const string& symName);
-    void addSymbol(const Symbol& symbol);
+    void addSymbol(Symbol* symbol);
 };
 
 class StackTable {

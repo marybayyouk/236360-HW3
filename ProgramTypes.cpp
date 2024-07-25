@@ -15,9 +15,9 @@ vector<string> convertVectorToUpperCase(vector<string> toUpper) {
 }
 
 bool LegalType(string typeOne, string typeTwo) {
-    if (typeOne != "int" && typeOne != "byte") {
+    if (typeOne != "INT" && typeOne != "BYTE") {
         return false;
-    } else if (typeTwo != "int" && typeTwo != "byte") {
+    } else if (typeTwo != "INT" && typeTwo != "BYTE") {
         return false;
     }
     return true;
@@ -111,7 +111,7 @@ Exp::Exp(Node* leftExp, Node* rightExp, const string op) {
     }
 }
 ////////////////////////////////////////NumB////////////////////////////////////////////////////
-NumB::NumB(Node* expression) : Exp(expression->getValue(), "byte") {
+NumB::NumB(Node* expression) : Exp(expression->getValue(), "BYTE") {
         if (stoi(expression->getValue()) >= 256) {
             output::errorByteTooLarge(yylineno, expression->getValue());
             exit(0);
@@ -172,24 +172,26 @@ Statement::Statement(Type* type, Node * id) {
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
-    std::cout<<"i am here" <<std::endl;
     stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
-    setValue(type->getType());
+    setValue(type->getValue());
 }
 
+// Statement -> Type ID Assign Exp SC
 Statement::Statement(Type* type, Node * id, Exp * exp, bool flag){
     if (flag) {
-        if (!stackTable.isDefinedInProgram(id->getValue())) {
-            output::errorUndef(yylineno, id->getValue());
+        if (stackTable.isDefinedInProgram(id->getValue())) {
+            output::errorDef(yylineno, id->getValue());
             exit(0);
         }
-        if (!LegalType(stackTable.findSymbol(id->getValue())->getType(), exp->getType())) {
+         if (!LegalType(type->getType(), exp->getType())) {
             output::errorMismatch(yylineno);
             exit(0);
         }
+        stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
         setValue(exp->getType());
+
     } else {
-        // means we are working with IF else Statements
+        // means we are working with IF ELSE Statements
         if (exp->getType() != "BOOL") {
             output::errorMismatch(yylineno);
             exit(0);
@@ -203,18 +205,14 @@ Statement::Statement(Node * id, Exp * exp) {
         output::errorUndef(yylineno, id->getValue());
         exit(0);
     }
-    if (!LegalType(stackTable.findSymbol(id->getValue())->getType(), exp->getType())) {
+    if (!LegalType((stackTable.findSymbol(id->getValue())->getType()), exp->getType())) {
         output::errorMismatch(yylineno);
         exit(0);
     }
     setValue(exp->getType());
 }
 
-// // Statement L Statement R 
-// Statement::Statement(Statments* Statments) {
-//     //open new scope
-//     scopes.pushScope(false, "");
-// }
+
 
 Statement::Statement(string str, Exp* exp) {
     if(exp->getType() != "BOOL"){
