@@ -1,8 +1,9 @@
 #include "ProgramTypes.hpp"
+#include "SymbolTable.hpp"
 #include "hw3_output.hpp"
 
 extern int yylineno;
-extern StackTable scopes;
+extern StackTable stackTable;
 using namespace std;
 
 vector<string> convertVectorToUpperCase(vector<string> toUpper) {
@@ -29,7 +30,7 @@ Exp::Exp() : Node("","VOID") {};
 // 𝐸𝑥𝑝 → 𝑁𝑜𝑡 𝐸𝑥𝑝
 Exp::Exp(Exp* exp, bool _) : Node(exp->getValue(), "") {
     //Exp* Exp = dynamic_cast<Exp*> (exp);
-    if (_ == false && !scopes.isDefinedInProgram(exp->getValue())){
+    if (_ == false && !stackTable.isDefinedInProgram(exp->getValue())){
         output::errorUndef(yylineno, exp->getValue());
     }
     if (exp->getType() != "BOOL") {
@@ -46,16 +47,16 @@ Exp::Exp(Exp* exp, bool _) : Node(exp->getValue(), "") {
 // 𝐸𝑥𝑝 → 𝐼𝐷/CALL
 Exp::Exp(Node* terminalExp, string rule) {
     if (rule == "ID") {
-        if (!scopes.isDefinedInProgram(terminalExp->getValue())){
+        if (!stackTable.isDefinedInProgram(terminalExp->getValue())){
         output::errorUndef(yylineno, terminalExp->getValue());
         exit(0);
         }
         setValue(terminalExp->getValue());
-        setType(scopes.findSymbol(terminalExp->getValue())->getType());
+        setType(stackTable.findSymbol(terminalExp->getValue())->getType());
     } 
     else if (rule == "CALL") {
         setValue(terminalExp->getValue());
-        setType(scopes.findSymbol(terminalExp->getValue())->getType());
+        setType(stackTable.findSymbol(terminalExp->getValue())->getType());
         isFunction = true;
     }
 }
@@ -121,33 +122,37 @@ NumB::NumB(Node* expression) : Exp(expression->getValue(), "byte") {
 //////////////////////////////////////////Call//////////////////////////////////////////
 // Call -> ID LPAREN RPAREN
 Call::Call(Node* terminalID, Exp* exp) : Node(terminalID->getValue(), "") {
-    if (!scopes.isDefinedInProgram(terminalID->getValue())) {
+    if (!(terminalID->getValue() == "print") && !(terminalID->getValue() == "printi") && !(terminalID->getValue() == "readi")) {
         output::errorUndefFunc(yylineno, terminalID->getValue());
         exit(0);
     }
-    if (!scopes.findSymbol(terminalID->getValue())->getIsFunction()) {
-        output::errorUndefFunc(yylineno, terminalID->getValue());
+    if ((terminalID->getValue() == "print") && (exp->getType() != "STRING")) {
+        output::errorPrototypeMismatch(yylineno,terminalID->getValue());
         exit(0);
     }
-    if(scopes.findSymbol(terminalID->getValue())->getNameType().names.size() > 0) {
-        output::errorPrototypeMismatch(yylineno, terminalID->getValue());
-        exit(0);
+    else if ((terminalID->getValue() == "printi") && (exp->getType() != "BYTE" || exp->getType() != "INT")) {
+        output::errorPrototypeMismatch(yylineno,terminalID->getValue());
     }
-    //////I THINK WE SHOULF CHECK MORE CASES FOR EACH 3 POSSIBLE FUNCTION
-    setType(scopes.findSymbol(terminalID->getValue())->getType());
-    setValue(scopes.findSymbol(terminalID->getValue())->getName());
+    else { //MUST BE READI FUNCTION
+        if(exp->getType() != "BYTE" && exp->getType() != "INT") {
+            output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+            exit(0);
+        }
+        setType(stackTable.findSymbol(terminalID->getValue())->getType());
+        setValue(stackTable.findSymbol(terminalID->getValue())->getName());
+    }
 }
 
 //////////////////////////////////////////Statement//////////////////////////////////////////
 // Statement -> BREAK / CONTINUE
 Statement::Statement(Node* BKNode) : Node(BKNode->getValue(),"") {
     if (BKNode->getValue() == "BREAK") {
-        if (!scopes.getScope()->getIsLoop()) {
+        if (!stackTable.getScope()->getIsLoop()) {
             output::errorUnexpectedBreak(yylineno);
             exit(0);
         }
     } else if (BKNode->getValue() == "CONTINUE") {
-        if (!scopes.getScope()->getIsLoop()) {
+        if (!stackTable.getScope()->getIsLoop()) {
             output::errorUnexpectedContinue(yylineno);
             exit(0);
         }
@@ -156,7 +161,7 @@ Statement::Statement(Node* BKNode) : Node(BKNode->getValue(),"") {
 
 // Statement -> Call SC
 Statement::Statement(Call * call) : Node() {
-    if (!scopes.isDefinedInProgram(call->getValue()) || !scopes.findSymbol(call->getValue())->getIsFunction()){
+    if (!stackTable.isDefinedInProgram(call->getValue()) || !stackTable.findSymbol(call->getValue())->getIsFunction()){
         output::errorUndefFunc(yylineno, call->getValue());
         exit(0);
     }
@@ -164,21 +169,21 @@ Statement::Statement(Call * call) : Node() {
 
 //Statement -> Type ID SC 
 Statement::Statement(Type* type, Node * id) {
-    if (scopes.isDefinedInProgram(id->getValue())) {
+    if (stackTable.isDefinedInProgram(id->getValue())) {
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
-    scopes.addSymbolToProgram(id->getValue(), false, type->getType(), {});
+    stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
     setValue(type->getType());
 }
 
 Statement::Statement(Type* type, Node * id, Exp * exp, bool flag){
     if (flag) {
-        if (!scopes.isDefinedInProgram(id->getValue())) {
+        if (!stackTable.isDefinedInProgram(id->getValue())) {
             output::errorUndef(yylineno, id->getValue());
             exit(0);
         }
-        if (!LegalType(scopes.findSymbol(id->getValue())->getType(), exp->getType())) {
+        if (!LegalType(stackTable.findSymbol(id->getValue())->getType(), exp->getType())) {
             output::errorMismatch(yylineno);
             exit(0);
         }
@@ -194,11 +199,11 @@ Statement::Statement(Type* type, Node * id, Exp * exp, bool flag){
 
 // Statement -> ID Assign Exp SC
 Statement::Statement(Node * id, Exp * exp) {
-    if (!scopes.isDefinedInProgram(id->getValue())) {
+    if (!stackTable.isDefinedInProgram(id->getValue())) {
         output::errorUndef(yylineno, id->getValue());
         exit(0);
     }
-    if (!LegalType(scopes.findSymbol(id->getValue())->getType(), exp->getType())) {
+    if (!LegalType(stackTable.findSymbol(id->getValue())->getType(), exp->getType())) {
         output::errorMismatch(yylineno);
         exit(0);
     }

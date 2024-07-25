@@ -1,4 +1,4 @@
-#include "SymbolTable.h"
+#include "SymbolTable.hpp"
 #include "hw3_output.hpp"
 
 
@@ -61,6 +61,12 @@ StackTable::StackTable() {
     program->addSymbol(Symbol("print", 0, true, "void", {"string"}));
     program->addSymbol(Symbol("printi", 0, true, "void", {"int"}));
     program->addSymbol(Symbol("readi", 0, true, "int", {"int"}));
+}
+
+StackTable::~StackTable() {
+    for(SymbolTable* scope : scopes) {
+        delete scope;
+    }
 }
 
 void StackTable::pushScope(bool isLoop, string retType) {

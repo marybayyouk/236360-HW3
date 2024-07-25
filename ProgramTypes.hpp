@@ -1,5 +1,6 @@
 #include <string>
-#include "SymbolTable.h"
+#include <iostream>
+#include "SymbolTable.hpp"
 using std::vector;
 
 

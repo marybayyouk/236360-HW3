@@ -1,5 +1,5 @@
-#ifndef __SYMBOLTABLE_H_
-#define __SYMBOLTABLE_H_
+#ifndef __SYMBOLTABLE_HPP_
+#define __SYMBOLTABLE_HPP_
 
 #include <iostream>
 #include <string>
@@ -51,9 +51,9 @@ public:
 };
 
 class StackTable {
+public:
     vector<SymbolTable*> scopes;
     vector<int> offsets;
-public:
     StackTable();
     ~StackTable();
     void pushScope(bool isLoop, string retType);
@@ -65,4 +65,4 @@ public:
 };
 
 
-#endif // __SYMBOLTABLE_H_
+#endif // __SYMBOLTABLE_HPP_
