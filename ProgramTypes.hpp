@@ -15,6 +15,7 @@ public:
     Node(std::string value = "", std::string type = "" ) : value(value), type(type) { };
     std::string getValue() const { return value; }
     std::string getType() const { return type; }
+    Node(Node* node) : value(node->getValue()), type(node->getType()) {};
     void setValue(std::string value) { this->value = value; }
     void setType(std::string type) { this->type = type; }
     virtual ~Node() {};
