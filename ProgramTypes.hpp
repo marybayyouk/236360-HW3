@@ -50,11 +50,10 @@ public:
     ~Exp() = default;
 };
 
-class ID : public Node {
+class iD : public Node {
 public:
-    ID(Node* id) : Node(id->getValue(), "ID") {
-       // if Id is already defined print error
-       
+    iD(Node* id) : Node(id->getValue(), "ID") {
+        std::cout <<"in ID " <<id->getValue()<<std::endl;
     }
 };
 
@@ -107,6 +106,7 @@ public:
     Program() {};
     ~Program() = default;
 };
+
 
 
 

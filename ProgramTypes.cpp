@@ -169,11 +169,10 @@ Statement::Statement(Call * call) : Node() {
 //Statement -> Type ID SC 
 Statement::Statement(Type* type, Node * id) {
     if (stackTable.isDefinedInProgram(id->getValue())) {
-        std::cout << "id defined in program" << std::endl;
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
-    std::cout<<"i am here in statement -> type id sc" <<std::endl;
+    std::cout<<"i am here" <<std::endl;
     stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
     setValue(type->getType());
 }
