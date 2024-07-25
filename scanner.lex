@@ -21,8 +21,8 @@ bool            { yylval.node = new Node(yytext); return BOOL; }
 and             { yylval.node = new Node(yytext); return AND; }
 or              { yylval.node = new Node(yytext); return OR; }
 not             { yylval.node = new Node(yytext); return NOT; }
-true            { yylval.node = new Node(yytext); return TRUE; }
-false           { yylval.node = new Node(yytext); return FALSE; }
+true            { yylval.boolean = true; return TRUE; }
+false           { yylval.boolean = false; return FALSE; }
 return          { yylval.node = new Node(yytext); return RETURN; }
 if              { yylval.node = new Node(yytext); return IF; }
 else            { yylval.node = new Node(yytext); return ELSE; }
@@ -42,8 +42,9 @@ continue        { yylval.node = new Node(yytext); return CONTINUE; }
 \*              { yylval.node = new Node(yytext); return MULTIPLY; }
 \/              { yylval.node = new Node(yytext); return DIVIDE; }
 {ID}            { yylval.node = new Node(yytext); return ID;} 
-0|[1-9]{digit}* { yylval.node = new Node(yytext); return NUM;}
-\"([^\n\r\"\\]|\\[rnt"\\])+\"       { yylval.node = new Node(yytext); return STRING; }
+0|[1-9]{digit}* { yylval.num = new Num(new Node(yytext)); return NUM;}
+{digit}+b       { yylval.numb = new NumB(new Node(yytext)); return NUMB;}
+\"([^\n\r\"\\]|\\[rnt"\\])+\"       { yylval.str = new String(new Node(yytext)); return STRING; }
 \/\/[^\r\n]*\r?\n?                   ;
 {whitespace}    { /* ignore whitespace */ }
 .               { output::errorLex(yylineno);

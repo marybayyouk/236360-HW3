@@ -17,7 +17,7 @@ int yyerror(const char *s);
     Num* num;
     NumB* numb;
     String* str;
-    bool* boolean;
+    bool boolean;
 }
 
 %define parse.lac full
