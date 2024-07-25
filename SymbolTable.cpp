@@ -1,7 +1,6 @@
 #include "SymbolTable.hpp"
 #include "hw3_output.hpp"
 
-
 string upperCase(string str) {
     for (char& c : str) {
         c = toupper(c);
@@ -91,7 +90,7 @@ void StackTable::popScope() {
                 arg = upperCase(arg);
             }
             string funcType = output::makeFunctionType(upperCase(symbol->getType()), args);
-            output::printID(name, 0, funcType);
+            output::printID(name, offset, funcType);
         }
     }
     delete temp;
@@ -126,7 +125,7 @@ void StackTable::addSymbolToProgram(const string& name, bool isFunc, const strin
     int newOffset = 0;
     if(!isFunc) {
         newOffset = offsets.back();
-        offsets.push_back(newOffset + 1); ////do we really need to push_back?
+        offsets.push_back(newOffset + 1); 
     }
     Symbol newSymbol(name, newOffset, isFunc, type, names);
     scopes.back()->addSymbol(newSymbol);

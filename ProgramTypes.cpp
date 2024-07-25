@@ -15,13 +15,12 @@ vector<string> convertVectorToUpperCase(vector<string> toUpper) {
 }
 
 bool LegalType(string typeOne, string typeTwo) {
-    if (typeOne == "INT" && typeTwo == "BYTE") {
-        return true;
-    } else if (typeOne == typeTwo) {
-        return true;
+    if (typeOne != "int" && typeOne != "byte") {
+        return false;
+    } else if (typeTwo != "int" && typeTwo != "byte") {
+        return false;
     }
-    // need to check 3rd legal assignment (byte) (int) with casting
-    return false;
+    return true;
 }
 
 //////////////////////////////////////////Exp//////////////////////////////////////////
