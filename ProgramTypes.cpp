@@ -174,7 +174,7 @@ Statement::Statement(Type* type, Node * id) {
         exit(0);
     }
     std::cout<<"i am here in statement -> type id sc" <<std::endl;
-    stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), stackTable.getScope());
+    stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
     setValue(type->getType());
 }
 
