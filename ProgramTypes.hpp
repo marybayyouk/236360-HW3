@@ -25,6 +25,7 @@ public:
 class Type : public Node {
 public:
     Type(std::string type) : Node("",type) {    
+        std::cout<<"type init" << type<<std::endl;
         };
 };
 
@@ -49,9 +50,11 @@ public:
     ~Exp() = default;
 };
 
-class iD : public Node {
+class ID : public Node {
 public:
-    iD(Node* id) : Node(id->getValue(), "ID") {
+    ID(Node* id) : Node(id->getValue(), "ID") {
+       // if Id is already defined print error
+       
     }
 };
 

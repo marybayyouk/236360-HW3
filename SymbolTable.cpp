@@ -129,6 +129,9 @@ void StackTable::addSymbolToProgram(const string& name, bool isFunc, const strin
     }
     Symbol newSymbol(name, newOffset, isFunc, type, names);
     scopes.back()->addSymbol(newSymbol);
+    for (Symbol *symbol : scopes.back()->symbols) {
+        std::cout << symbol->getName() << std::endl;
+    }
 }
 
 SymbolTable* StackTable::getScope(){
