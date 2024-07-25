@@ -169,11 +169,13 @@ Statement::Statement(Call * call) : Node() {
 //Statement -> Type ID SC 
 Statement::Statement(Type* type, Node * id) {
     if (stackTable.isDefinedInProgram(id->getValue())) {
+        std::cout << "statement type id sc error" << std::endl;
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
-    std::cout<<"i am here" <<std::endl;
+    std::cout<<"statement ->type ID SC" << std::endl;
     stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
+    std::cout << type->getType() << id->getValue() << std::endl;
     setValue(type->getType());
 }
 
@@ -207,14 +209,10 @@ Statement::Statement(Node * id, Exp * exp) {
         output::errorMismatch(yylineno);
         exit(0);
     }
-    setValue(exp->getType());
+
+    setValue(exp->getValue());
 }
 
-// // Statement L Statement R 
-// Statement::Statement(Statments* Statments) {
-//     //open new scope
-//     scopes.pushScope(false, "");
-// }
 
 Statement::Statement(string str, Exp* exp) {
     if(exp->getType() != "BOOL"){

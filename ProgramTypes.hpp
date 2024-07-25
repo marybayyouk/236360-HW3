@@ -25,7 +25,6 @@ public:
 class Type : public Node {
 public:
     Type(std::string type) : Node("",type) {    
-        std::cout<<"type init" << type<<std::endl;
         };
 };
 
@@ -53,7 +52,6 @@ public:
 class iD : public Node {
 public:
     iD(Node* id) : Node(id->getValue(), "ID") {
-        std::cout <<"in ID " <<id->getValue()<<std::endl;
     }
 };
 
