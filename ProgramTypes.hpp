@@ -50,6 +50,11 @@ public:
     ~Exp() = default;
 };
 
+class ID : public Node {
+public:
+    ID(Node* id) : Node(id->getValue(), "ID") {}
+};
+
 class Bool: public Exp {
 public:
     Bool(Node* expression) : Exp(expression->getValue(), "bool") {}
