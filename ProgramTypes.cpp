@@ -120,7 +120,7 @@ NumB::NumB(Node* expression) : Exp(expression->getValue(), "byte") {
 
 //////////////////////////////////////////Call//////////////////////////////////////////
 // Call -> ID LPAREN RPAREN
-Call::Call(string type, Node* terminalID) : Node(terminalID->getValue(), "") {
+Call::Call(Node* terminalID, Exp* exp) : Node(terminalID->getValue(), "") {
     if (!scopes.isDefinedInProgram(terminalID->getValue())) {
         output::errorUndefFunc(yylineno, terminalID->getValue());
         exit(0);

@@ -26,9 +26,11 @@ public:
     Type(std::string type) : Node("",type) {};
 };
 
+class Exp;
+
 class Call : public Node {
 public:
-    Call(string type, Node* terminalID);
+    Call(Node* terminalId, Exp* exp);
     ~Call() = default;
 };
 
