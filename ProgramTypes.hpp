@@ -50,9 +50,11 @@ public:
     ~Exp() = default;
 };
 
-class ID : public Node {
+class iD : public Node {
 public:
-    ID(Node* id) : Node(id->getValue(), "ID") {}
+    iD(Node* id) : Node(id->getValue(), "ID") {
+        std::cout <<"in ID " <<id->getValue()<<std::endl;
+    }
 };
 
 class Bool: public Exp {
