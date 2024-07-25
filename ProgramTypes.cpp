@@ -93,8 +93,6 @@ Exp::Exp(Node* leftExp, Node* rightExp, const string op) {
         } 
         setType("BOOL"); 
     } else { ///IT IS RELOP OR BINOP
-        cout<<lType<<" l type" <<endl;
-        cout <<rType<<"r type" << endl;
         if ((lType != "INT" && lType != "BYTE") || (rType != "INT" && rType != "BYTE")) {
             output::errorMismatch(yylineno);
             exit(0);
@@ -127,19 +125,19 @@ Call::Call(Node* terminalID, Exp* exp) : Node(terminalID->getValue(), "") {
     }
     if ((terminalID->getValue() == "print")) {
         if (exp->getType() != "STRING") {
-            output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+            output::errorPrototypeMismatch(yylineno,terminalID->getValue(), "STRING");
             exit(0);
         }
     }
     else if (terminalID->getValue() == "printi") {
         if (exp->getType() != "BYTE" && exp->getType() != "INT") {
-            output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+            output::errorPrototypeMismatch(yylineno,terminalID->getValue(), "INT");
             exit(0);
         }
     }
     else { //MUST BE READI FUNCTION
         if(exp->getType() != "BYTE" && exp->getType() != "INT") {
-            output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+            output::errorPrototypeMismatch(yylineno,terminalID->getValue(), "INT");
             exit(0);
         }
     }
@@ -219,8 +217,3 @@ Statement::Statement(Node * id, Exp * exp) {
     }
     setValue(exp->getType());
 }
-
-
-
-
-

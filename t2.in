@@ -1,16 +1,8 @@
-override int myfunc(int x) {
-    x = x + 3;
-    return x;
+bool c = false;
+if (not c) {
+    int x = 6;
+    int y = x + 3;
+    printi(y);
 }
-
-override int myfunc(byte x) {
-    return x;
-}
-
-void main() {
-    bool c = false;
-    if (not c) {
-        int x = 6b;
-        printi(myfunc(x));
-    }
-}
+else
+    syntax error;

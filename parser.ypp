@@ -86,6 +86,3 @@ void yyerror(const char *s) {
     output::errorSyn(yylineno);
     exit(0);
 }
-
-
-

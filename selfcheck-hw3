@@ -1,17 +1,14 @@
 #!/bin/bash 
 # change these per each homework 
 #	link to tests:
-testsurl="https://webcourse.cs.technion.ac.il/fc159753hw_236360_202202/hw/WCFiles/X2363602022022-hw3-tests.zip"
-makefileurl="https://webcourse.cs.technion.ac.il/fc159753hw_236360_202202/hw/WCFiles/X2363602022021-Makefile"
-#	number of tests: 
-numtests=2 
-#	command to execute test: 
-command="./hw3 < t\$i.in >& t\$i.res"
+testsurl="https://github.com/Whitomtit/HW3_tests"
+makefileurl="https://github.com/Whitomtit/HW3_makefile"
+
 hostname="cscomp"
 tmpdir="selfcheck_tmp"
 if [ $( hostname ) != "$hostname" ]
 	then 
-	echo "This script is only intended to run on "$hostname" or "$hostname2"!" 
+	echo "This script is only intended to run on "$hostname"!" 
 	exit 
 fi 
 
@@ -60,24 +57,27 @@ fi
 
 if [ ! -f hw3_output.cpp ] 
 	then
-	echo "File output.cpp not found!"
+	echo "File hw3_output.cpp not found!"
 	exit
 fi
 
 if [ ! -f hw3_output.hpp ] 
 	then
-	echo "File output.hpp not found!"
+	echo "File hw3_output.hpp not found!"
 	exit
 fi
 
-wget -O Makefile --no-check-certificate "$makefileurl" &> /dev/null
-if [ ! -f Makefile ]
+git clone "$makefileurl" &> /dev/null
+if [ ! -d HW3_makefile ]
 	then
 		echo "Unable to download makefile!"
 		exit
 fi
+cd HW3_makefile
+mv * ../
+cd ..
 
-make
+make -f Makefile-hw3
 
 if [ ! -f hw3 ] 
 	then 
@@ -85,36 +85,35 @@ if [ ! -f hw3 ]
 	exit 
 fi 
 
-wget --no-check-certificate "$testsurl" &> /dev/null 
-if [ ! -f $( basename "$testsurl" ) ] 
-	then 
-	echo "Unable to download tests!" 
-	exit 
+git clone "$testsurl" &> /dev/null
+if [ ! -d HW3_tests ]
+	then
+		echo "Unable to download tests!"
+		exit
 fi
+cd HW3_tests
+mv * ../
+cd ..
 
-unzip $( basename "$testsurl" ) &> /dev/null
-
-if [[ $? != 0 ]]
-	then 
-	echo "Unable to unzip tests!" 
-	exit 
-fi 
-
+#	number of tests: 
+numtests=2 
+#	command to execute test: 
+command="./hw3 < t\$i.in >& t\$i.res"
 i="1" 
 
 while [ $i -le $numtests ] 
 	do 
-	eval $command 
-	diff t$i.res t$i.out &> /dev/null 
-	if [[ $? != 0 ]] 
-		then
-		echo "Failed test #"$i"!" 
-		exit 
-	fi 
-	i=$[$i+1] 
+		eval $command 
+		diff t$i.res t$i.out &> /dev/null 
+		if [[ $? != 0 ]] 
+			then
+			echo "Failed test #"$i"!" 
+			exit 
+		fi 
+		i=$[$i+1] 
 done 
 
-cd - &> /dev/null 
+cd .. &> /dev/null 
 rm -rf "$tmpdir" 
 echo "Ok to submit :)" 
 exit

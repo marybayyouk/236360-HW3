@@ -79,6 +79,7 @@ void StackTable::pushScope(bool isLoop, string retType) {
 void StackTable::popScope() {
     SymbolTable* temp = scopes.back();
     output::endScope();
+    string retType = "VOID";
     for (Symbol* symbol : temp->symbols) {
         string name = symbol->getName();
         int offset = symbol->getOffset();
@@ -90,7 +91,10 @@ void StackTable::popScope() {
             for(string& arg : args) {
                 arg = upperCase(arg);
             }
-            string funcType = output::makeFunctionType(upperCase(symbol->getType()), args);
+            if (symbol->getName() == "readi") {
+                retType = "INT";
+            }
+            string funcType = output::makeFunctionType(upperCase(symbol->getType()), retType);
             output::printID(name, offset, funcType);
         }
     }

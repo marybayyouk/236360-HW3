@@ -12,34 +12,9 @@ void output::printID(const string& id, int offset, const string& type) {
     cout << id << " " << type <<  " " << offset <<  endl;
 }
 
-string typeListToString(const std::vector<string>& argTypes) {
-    stringstream res;
-    res << "(";
-    for(int i = 0; i < argTypes.size(); ++i) {
-        res << argTypes[i];
-        if (i + 1 < argTypes.size())
-            res << ",";
-    }
-    res << ")";
-    return res.str();
-}
-
-string valueListsToString(const std::vector<string>& values) {
-    stringstream res;
-    res << "{";
-    for(int i = 0; i < values.size(); ++i) {
-        res << values[i];
-        if (i + 1 < values.size())
-            res << ",";
-    }
-    res << "}";
-    return res.str();
-}
-
-string output::makeFunctionType(const string& retType, std::vector<string>& argTypes) {
-    stringstream res;
-    res << typeListToString(argTypes) << "->" << retType;
-    return res.str();
+string output::makeFunctionType(const string& argType, const string& retType) {
+    
+    return "(" + argType + ")" + "->" + retType;
 }
 
 void output::errorLex(int lineno){
@@ -66,8 +41,8 @@ void output::errorMismatch(int lineno){
     cout << "line " << lineno << ":" << " type mismatch" << endl;
 }
 
-void output::errorPrototypeMismatch(int lineno, const string& id) {
-    cout << "line " << lineno << ": prototype mismatch, function " << id << endl;
+void output::errorPrototypeMismatch(int lineno, const string& id, const string &type) {
+    cout << "line " << lineno << ": prototype mismatch, function " << id << " expects arguments " << type << endl;
 }
 
 void output::errorUnexpectedBreak(int lineno) {
@@ -78,26 +53,6 @@ void output::errorUnexpectedContinue(int lineno) {
     cout << "line " << lineno << ":" << " unexpected continue statement" << endl;	
 }
 
-void output::errorMainMissing() {
-    cout << "Program has no 'void main()' function" << endl;
-}
-
 void output::errorByteTooLarge(int lineno, const string& value) {
     cout << "line " << lineno << ": byte value " << value << " out of range" << endl;
-}
-
-void output::errorFuncNoOverride(int lineno, const string& id) {
-    cout << "line " << lineno << ": function " << id << " was declared before as non-override function" << endl;
-}
-
-void output::errorOverrideWithoutDeclaration(int lineno, const string& id) {
-    cout << "line " << lineno << ": function " << id << " attempt to override a function without declaring the current function as override" << endl;
-}
-
-void output::errorAmbiguousCall(int lineno, const string& id) {
-    cout << "line " << lineno << ": ambiguous call to overloaded function " << id << endl;
-}
-
-void output::errorMainOverride(int lineno){
-    cout << "line " << lineno << ": main is not allowed to be overridden" << endl;
 }
