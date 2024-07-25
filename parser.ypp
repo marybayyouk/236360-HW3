@@ -4,6 +4,7 @@
 #include "ProgramTypes.hpp"
 extern int yylex();
 extern int yylineno;
+extern char* yytext;
 extern StackTable stackTable;
 int yyerror(const char *s);
 %}
@@ -99,6 +100,7 @@ REMOVESCOPE:                                                            {
 StackTable stackTable = StackTable();
 
 int yyerror(const char *s) {
+    printf(yytext);
     output::errorSyn(yylineno);
     exit(0);
 }

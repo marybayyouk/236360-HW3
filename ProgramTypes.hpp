@@ -24,7 +24,9 @@ public:
 
 class Type : public Node {
 public:
-    Type(std::string type) : Node("",type) {};
+    Type(std::string type) : Node("",type) {    
+        std::cout<<"type init" << type<<std::endl;
+        };
 };
 
 class Exp;

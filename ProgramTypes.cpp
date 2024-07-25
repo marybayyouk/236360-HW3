@@ -172,6 +172,7 @@ Statement::Statement(Type* type, Node * id) {
         output::errorDef(yylineno, id->getValue());
         exit(0);
     }
+    std::cout<<"i am here" <<std::endl;
     stackTable.addSymbolToProgram(id->getValue(), false, type->getType(), {});
     setValue(type->getType());
 }
