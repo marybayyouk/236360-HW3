@@ -28,6 +28,13 @@ public:
         };
 };
 
+
+class iD : public Node {
+public:
+    iD(Node* id) : Node(id->getValue(), "ID") {
+    }
+};
+
 class Exp;
 
 class Call : public Node {
@@ -47,12 +54,6 @@ public:
     Exp(Node* leftExp, Node* rightExp, const string op); // Exp -> Exp And/Or/Relop/Binop Exp
     Exp(string value, string type) : Node(value,type) {} ///FOR CHILD C'TORS
     ~Exp() = default;
-};
-
-class iD : public Node {
-public:
-    iD(Node* id) : Node(id->getValue(), "ID") {
-    }
 };
 
 class Bool: public Exp {
@@ -84,7 +85,7 @@ public:
     Statement() {};
     Statement(Statement* Statement) {};
     Statement(Node* BCNode); // Statement -> BREAK / CONTINUE
-    Statement(Call * call); // Statement -> Call SC
+    Statement(Call * call) {}; // Statement -> Call SC
     Statement(Type* type, Node * id); // Statement -> Type ID SC  
     Statement(Type* type, Node * id, Exp * exp, bool flag); // Statement -> Type ID Assign Exp SC
     Statement(Node * id, Exp * exp); // Statement -> ID Assign Exp SC

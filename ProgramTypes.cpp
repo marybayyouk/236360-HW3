@@ -125,21 +125,26 @@ Call::Call(Node* terminalID, Exp* exp) : Node(terminalID->getValue(), "") {
         output::errorUndefFunc(yylineno, terminalID->getValue());
         exit(0);
     }
-    if ((terminalID->getValue() == "print") && (exp->getType() != "STRING")) {
-        output::errorPrototypeMismatch(yylineno,terminalID->getValue());
-        exit(0);
+    if ((terminalID->getValue() == "print")) {
+        if (exp->getType() != "STRING") {
+            output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+            exit(0);
+        }
     }
-    else if ((terminalID->getValue() == "printi") && (exp->getType() != "BYTE" || exp->getType() != "INT")) {
-        output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+    else if (terminalID->getValue() == "printi") {
+        if (exp->getType() != "BYTE" || exp->getType() != "INT") {
+            output::errorPrototypeMismatch(yylineno,terminalID->getValue());
+            exit(0);
+        }
     }
     else { //MUST BE READI FUNCTION
         if(exp->getType() != "BYTE" && exp->getType() != "INT") {
             output::errorPrototypeMismatch(yylineno,terminalID->getValue());
             exit(0);
         }
-        setType(stackTable.findSymbol(terminalID->getValue())->getType());
-        setValue(stackTable.findSymbol(terminalID->getValue())->getName());
     }
+    setType(stackTable.findSymbol(terminalID->getValue())->getType());
+    setValue(stackTable.findSymbol(terminalID->getValue())->getName());
 }
 
 //////////////////////////////////////////Statement//////////////////////////////////////////
@@ -150,19 +155,12 @@ Statement::Statement(Node* BKNode) : Node(BKNode->getValue(),"") {
             output::errorUnexpectedBreak(yylineno);
             exit(0);
         }
-    } else if (BKNode->getValue() == "CONTINUE") {
+    } 
+    else if (BKNode->getValue() == "CONTINUE") {
         if (!stackTable.getScope()->getIsLoop()) {
             output::errorUnexpectedContinue(yylineno);
             exit(0);
         }
-    }
-}
-
-// Statement -> Call SC
-Statement::Statement(Call * call) : Node() {
-    if (!stackTable.isDefinedInProgram(call->getValue()) || !stackTable.findSymbol(call->getValue())->getIsFunction()){
-        output::errorUndefFunc(yylineno, call->getValue());
-        exit(0);
     }
 }
 

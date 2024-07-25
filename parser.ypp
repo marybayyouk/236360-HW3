@@ -60,7 +60,7 @@ Statement: LBRACE ADDSCOPE Statements REMOVESCOPE RBRACE               { $$ = ne
             | BREAK SC                                                 { $$ = new Statement(new Node("BREAK")); }
             | CONTINUE SC                                              { $$ = new Statement(new Node("CONTINUE")); }
 
-Call:   ID LPAREN Exp RPAREN                                           { $$ = new Call(new iD($1), $3);} 
+Call:   ID LPAREN Exp RPAREN                                           { $$ = new Call($1, dynamic_cast<Exp*>($3));} 
 
 Type:   INT                                                            { $$ = new Type("INT"); }
         | BYTE                                                         { $$ = new Type("BYTE"); } 
