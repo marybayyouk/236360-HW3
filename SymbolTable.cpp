@@ -1,5 +1,4 @@
 #include "SymbolTable.hpp"
-#include "hw3_output.hpp"
 
 string upperCase(string str) {
     for (char& c : str) {
@@ -56,9 +55,9 @@ StackTable::StackTable() {
     SymbolTable* program = new SymbolTable(0, false);
     scopes.push_back(program);
     offsets.push_back(0);
-    Symbol * printS = new Symbol("print", 0, true, "void", {"string"});
-    Symbol * printIs = new Symbol("printi", 0, true, "void", {"int"});
-    Symbol * readIs = new Symbol("readi", 0, true, "int", {"int"});
+    Symbol * printS = new Symbol("print", 0, true, "VOID", {"STRING"});
+    Symbol * printIs = new Symbol("printi", 0, true, "VOID", {"INT"});
+    Symbol * readIs = new Symbol("readi", 0, true, "INT", {"INT"});
     program->addSymbol(printS);
     program->addSymbol(printIs);
     program->addSymbol(readIs);

@@ -1,7 +1,8 @@
 #include <string>
 #include <iostream>
+#include "hw3_output.hpp"
 #include "SymbolTable.hpp"
-using std::vector;
+#define YYSTYPE Node*
 
 
 vector<string> convertVectorToUpperCase(vector<string> toUpper);
@@ -47,7 +48,7 @@ class Exp : public Node {
     bool isFunction;
 public:
     Exp();
-    //Exp(Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
+    Exp(int mode, Node* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
     Exp(Exp* exp, bool _ = true); //𝐸𝑥𝑝 → Not Exp
     Exp(Node* terminalExp, string rule); //𝐸𝑥𝑝 → 𝐼𝐷/𝐶𝑎𝑙𝑙
     Exp(Type* type, Exp* exp); //𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝑇𝑦𝑝𝑒 𝑅𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝
@@ -85,12 +86,12 @@ public:
     Statement() {};
     Statement(Statement* Statement) {};
     Statement(Node* BCNode); // Statement -> BREAK / CONTINUE
-    Statement(Call * call) {}; // Statement -> Call SC
+    Statement(Call * call); // Statement -> Call SC
     Statement(Type* type, Node * id); // Statement -> Type ID SC  
     Statement(Type* type, Node * id, Exp * exp, bool flag); // Statement -> Type ID Assign Exp SC
+    Statement(int x, int y, Exp* exp); // Statement -> if exp Else/Noelse
     Statement(Node * id, Exp * exp); // Statement -> ID Assign Exp SC
     //Statement(Statments* Statments); // Statement -> { Statements }
-    Statement(string str, Exp* exp); // Statement -> IF ( Exp ) Statement
 };
 
 class Statements : public Node {

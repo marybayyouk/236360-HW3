@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "hw3_output.hpp"
 
 using std::string;
 using std::vector;

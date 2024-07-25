@@ -1,36 +1,15 @@
 %{
-#include <iostream>
-#include "hw3_output.hpp"
 #include "ProgramTypes.hpp"
+
 extern int yylex();
 extern int yylineno;
 extern char* yytext;
 extern StackTable stackTable;
-int yyerror(const char *s);
+void yyerror(const char* message);
+
 %}
 
-%union {
-    Node* node;
-    Exp* exp;
-    Statement* stmt;
-    Call* call;
-    Type* type;
-    Num* num;
-    NumB* numb;
-    String* str;
-    bool boolean;
-}
-
-%define parse.lac full
-%token <node> INT BYTE B BOOL TRUE FALSE IF RETURN WHILE BREAK CONTINUE SC ID
-%token <num> NUM
-%token <numb> NUMB
-%token <str> STRING
-%type <node> Program Statements
-%type <stmt> Statement
-%type <call> Call
-%type <type> Type
-%type <exp> Exp
+%token INT BYTE B BOOL TRUE FALSE IF RETURN WHILE BREAK CONTINUE SC ID STRING NUM
 
 %right ASSIGN 
 %left OR
@@ -49,14 +28,14 @@ Statements: Statement                                                  { $$ = ne
             | Statements Statement                                     { $$ = new Statements(dynamic_cast<Statements*>($1), dynamic_cast<Statement*>($2)); }
                                                                         
 Statement: LBRACE ADDSCOPE Statements REMOVESCOPE RBRACE               { $$ = new Statement($3); } 
-            | Type ID SC                                               { $$ = new Statement($1, new iD($2)); }
-            | Type ID ASSIGN Exp SC                                    { $$ = new Statement($1, new iD($2), $4, true); } 
-            | ID ASSIGN Exp SC                                         { $$ = new Statement(new iD($1), $3); } 
+            | Type ID SC                                               { $$ = new Statement(dynamic_cast<Type*>($1), $2); }
+            | Type ID ASSIGN Exp SC                                    { $$ = new Statement(dynamic_cast<Type*>($1), $2, dynamic_cast<Exp*>($4), true); } 
+            | ID ASSIGN Exp SC                                         { $$ = new Statement($1, dynamic_cast<Exp*>($3)); } 
             | Call SC                                                  { $$ = new Statement($1); }
             | RETURN SC                                                {} 
-            | IF LPAREN Exp RPAREN ADDSCOPE Statement %prec IF         { $$ = new Statement("IF", $3); stackTable.popScope(); }
-            | IF LPAREN Exp RPAREN ADDSCOPE Statement ELSE Statement   { $$ = new Statement("IF ELSE", $3); stackTable.popScope(); }
-            | WHILE LPAREN Exp RPAREN ADDSCOPE Statement               { $$ = new Statement("WHILE", $3); stackTable.popScope(); } 
+            | IF LPAREN Exp RPAREN ADDSCOPE Statement %prec IF         { $$ = new Statement(1,2 ,dynamic_cast<Exp*>($3)); stackTable.popScope(); }
+            | IF LPAREN Exp RPAREN ADDSCOPE Statement ELSE Statement   { $$ = new Statement(1,2 ,dynamic_cast<Exp*>($3)); stackTable.popScope(); }
+            | WHILE LPAREN Exp RPAREN ADDSCOPE Statement               { $$ = new Statement(1,2 ,dynamic_cast<Exp*>($3)); stackTable.popScope(); } 
             | BREAK SC                                                 { $$ = new Statement(new Node("BREAK")); }
             | CONTINUE SC                                              { $$ = new Statement(new Node("CONTINUE")); }
 
@@ -66,24 +45,24 @@ Type:   INT                                                            { $$ = ne
         | BYTE                                                         { $$ = new Type("BYTE"); } 
         | BOOL                                                         { $$ = new Type("BOOL"); }
 
-Exp:    LPAREN Exp RPAREN                                              { $$ = new Exp($2); }      
-        | Exp ADD Exp                                                  { $$ = new Exp($1, $3, "ADD"); }
-        | Exp SUB Exp                                                  { $$ = new Exp($1, $3, "SUB"); } 
-        | Exp DIVIDE Exp                                               { $$ = new Exp($1, $3, "DIVIDE"); }
-        | Exp MULTIPLY Exp                                             { $$ = new Exp($1, $3, "MULTIPLY"); }
+Exp:    LPAREN Exp RPAREN                                              { $$ = new Exp(1,$2); }      
+        | Exp ADD Exp                                                  { $$ = new Exp($1, $3, "BINOP"); }
+        | Exp SUB Exp                                                  { $$ = new Exp($1, $3, "BINOP"); } 
+        | Exp DIVIDE Exp                                               { $$ = new Exp($1, $3, "BINOP"); }
+        | Exp MULTIPLY Exp                                             { $$ = new Exp($1, $3, "BINOP"); }
         | ID                                                           { $$ = new Exp(new iD($1), "ID"); } 
-        | Call                                                         { $$ = new Exp(new Node($1), "CALL"); }
+        | Call                                                         { $$ = new Exp($1, "CALL"); }
         | NUM                                                          { $$ = new Num($1); }
         | NUM B                                                        { $$ = new NumB($1); }
         | STRING                                                       { $$ = new String($1); }
         | TRUE                                                         { $$ = new Bool($1); }
         | FALSE                                                        { $$ = new Bool($1); }
-        | NOT Exp                                                      { $$ = new Exp($2, true); }
+        | NOT Exp                                                      { $$ = new Exp(dynamic_cast<Exp*>($2), true); }
         | Exp AND Exp                                                  { $$ = new Exp($1, $3, "AND"); } 
         | Exp OR Exp                                                   { $$ = new Exp($1, $3, "OR"); }
-        | Exp ISEQUAL Exp                                              { $$ = new Exp($1, $3, "ISEQUAL"); }
+        | Exp ISEQUAL Exp                                              { $$ = new Exp($1, $3, "RELOP"); }
         | Exp RELOP Exp                                                { $$ = new Exp($1, $3, "RELOP"); }
-        | LPAREN Type RPAREN Exp                                       { $$ = new Exp($2, $4); }
+        | LPAREN Type RPAREN Exp                                       { $$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4)); }
 
 ;
 ///pushScope///
@@ -99,13 +78,14 @@ REMOVESCOPE:                                                            {
 %%
 StackTable stackTable = StackTable();
 
-int yyerror(const char *s) {
-    printf(yytext);
+int main() {
+    return yyparse();
+}
+
+void yyerror(const char *s) {
     output::errorSyn(yylineno);
     exit(0);
 }
 
-int main() {
-    return yyparse();
-}
+
 

@@ -1,6 +1,4 @@
 #include "ProgramTypes.hpp"
-#include "SymbolTable.hpp"
-#include "hw3_output.hpp"
 
 extern int yylineno;
 extern StackTable stackTable;
@@ -40,7 +38,7 @@ Exp::Exp(Exp* exp, bool _) : Node(exp->getValue(), "") {
 }
 
 // 𝐸𝑥𝑝 → 𝐿𝑃𝐴𝑅𝐸𝑁 𝐸𝑥𝑝 𝑅𝑃𝐴𝑅𝐸𝑁
-//Exp::Exp(Node *exp) : Node(exp->getValue(), "") {};
+Exp::Exp(int mode, Node *exp) : Node(exp->getValue(), "") {};
 
 
 // 𝐸𝑥𝑝 → 𝐼𝐷/CALL
@@ -93,9 +91,11 @@ Exp::Exp(Node* leftExp, Node* rightExp, const string op) {
             output::errorMismatch(yylineno);
             exit(0);
         } 
-        setType("BOOL");  
+        setType("BOOL"); 
     } else { ///IT IS RELOP OR BINOP
-        if (lType != "INT" || lType != "BYTE" || rType != "INT" || rType != "BYTE") {
+        cout<<lType<<" l type" <<endl;
+        cout <<rType<<"r type" << endl;
+        if ((lType != "INT" && lType != "BYTE") || (rType != "INT" && rType != "BYTE")) {
             output::errorMismatch(yylineno);
             exit(0);
         }
@@ -119,7 +119,7 @@ NumB::NumB(Node* expression) : Exp(expression->getValue(), "BYTE") {
     }
 
 //////////////////////////////////////////Call//////////////////////////////////////////
-// Call -> ID LPAREN RPAREN
+// Call -> ID LPAREN EXP RPAREN
 Call::Call(Node* terminalID, Exp* exp) : Node(terminalID->getValue(), "") {
     if (!(terminalID->getValue() == "print") && !(terminalID->getValue() == "printi") && !(terminalID->getValue() == "readi")) {
         output::errorUndefFunc(yylineno, terminalID->getValue());
@@ -132,7 +132,7 @@ Call::Call(Node* terminalID, Exp* exp) : Node(terminalID->getValue(), "") {
         }
     }
     else if (terminalID->getValue() == "printi") {
-        if (exp->getType() != "BYTE" || exp->getType() != "INT") {
+        if (exp->getType() != "BYTE" && exp->getType() != "INT") {
             output::errorPrototypeMismatch(yylineno,terminalID->getValue());
             exit(0);
         }
@@ -197,6 +197,16 @@ Statement::Statement(Type* type, Node * id, Exp * exp, bool flag){
     }
 }
 
+Statement::Statement(int x, int y, Exp* exp) {
+     if (exp->getType() != "BOOL") {
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
+}
+
+// Statement -> Call SC
+Statement::Statement(Call * call) : Node() {};
+
 // Statement -> ID Assign Exp SC
 Statement::Statement(Node * id, Exp * exp) {
     if (!stackTable.isDefinedInProgram(id->getValue())) {
@@ -212,9 +222,5 @@ Statement::Statement(Node * id, Exp * exp) {
 
 
 
-Statement::Statement(string str, Exp* exp) {
-    if(exp->getType() != "BOOL"){
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-}
+
+
