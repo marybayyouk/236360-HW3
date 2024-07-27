@@ -8,14 +8,12 @@ string upperCase(string str) {
 }
 
 /////////////////////////////////////////////////SymbolTable//////////////////////////////////////////////////////////
-SymbolTable::SymbolTable(int maxOff,bool isloop, string retType) : symbols() { 
+SymbolTable::SymbolTable(int maxOff,bool isloop) : symbols() { 
     currentOffset = maxOff;
     isLoop = isloop;
-    returnedType = new string(retType);
 }
 
 SymbolTable::~SymbolTable() {
-    delete returnedType;
     for (Symbol* symbol : symbols) 
          delete symbol; 
 }
@@ -49,18 +47,18 @@ void SymbolTable::addSymbol(Symbol* symbol) {
     currentOffset = symbol->getOffset() ;
 }
 
-
 /////////////////////////////////////////////////StackTable//////////////////////////////////////////////////////////
 StackTable::StackTable() {
-    SymbolTable* program = new SymbolTable(0, false);
-    scopes.push_back(program);
+    //SymbolTable* program = new SymbolTable(0, false);
+    //scopes.push_back(program);
     offsets.push_back(0);
-    Symbol * printS = new Symbol("print", 0, true, "VOID", {"STRING"});
-    Symbol * printIs = new Symbol("printi", 0, true, "VOID", {"INT"});
+    pushScope(false);
+    Symbol * printS = new Symbol("print", 0, true, "STRING", {"STRING"});
+    Symbol * printIs = new Symbol("printi", 0, true, "INT", {"INT"});
     Symbol * readIs = new Symbol("readi", 0, true, "INT", {"INT"});
-    program->addSymbol(printS);
-    program->addSymbol(printIs);
-    program->addSymbol(readIs);
+    (scopes.back())->addSymbol(printS);
+    (scopes.back())->addSymbol(printIs);
+    (scopes.back())->addSymbol(readIs);
 }
 
 StackTable::~StackTable() {
@@ -69,42 +67,44 @@ StackTable::~StackTable() {
     }
 }
 
-void StackTable::pushScope(bool isLoop, string retType) {
-    SymbolTable* newScope = new SymbolTable(offsets.back(), isLoop, retType);
-    //SymbolTable* temp = scopes.back(); ///temp is the current scope
+void StackTable::pushScope(bool isLoop) {
+    //SymbolTable* toAdd = new SymbolTable(offsets.back(), isLoop);
+    scopes.push_back(new SymbolTable(offsets.back(), isLoop));
     if (scopes.size() > 0)
         offsets.push_back(scopes.back()->getOffset()); 
+}
+
+string StackTable::setFunctionType(string funcName) {
+    if(funcName == "print") {
+        return output::makeFunctionType("STRING", "VOID");
+    }
+    else if(funcName == "printi") {
+        return output::makeFunctionType("INT", "VOID");
+    }
+    return output::makeFunctionType("INT", "INT");
 }
 
 void StackTable::popScope() {
     SymbolTable* temp = scopes.back();
     output::endScope();
-    string retType = "VOID";
     for (Symbol* symbol : temp->symbols) {
         string name = symbol->getName();
-        int offset = symbol->getOffset();
-        if (!symbol->getIsFunction()) {
-            output::printID(name, offset, upperCase(symbol->getType()));
+        int offs = symbol->getOffset();
+        string type = upperCase(symbol->getType());
+        if(symbol->getIsFunction()) {
+            type = setFunctionType(name);
         }
-        else {
-            vector<string> args = symbol->getNameType().names;
-            for(string& arg : args) {
-                arg = upperCase(arg);
-            }
-            if (symbol->getName() == "readi") {
-                retType = "INT";
-            }
-            string funcType = output::makeFunctionType(upperCase(symbol->getType()), retType);
-            output::printID(name, offset, funcType);
-        }
+        output::printID(name, offs, type);
     }
+    scopes.pop_back();
+    offsets.pop_back();
+    // if (!scopes.empty()) {
+    //     scopes.pop_back();
+    // }
+    // if (!offsets.empty()) {
+    //     offsets.pop_back();
+    // }
     delete temp;
-    if (scopes.size() > 0) {
-        scopes.pop_back();
-    }
-    if (offsets.size() > 0) {
-        offsets.pop_back();
-    }
 }
 
 bool StackTable::isDefinedInProgram(const string& name) {
@@ -127,13 +127,14 @@ Symbol* StackTable::findSymbol(const string& name) {
 }
 
 void StackTable::addSymbolToProgram(const string& name, bool isFunc, const string& type, vector<string> names) {
-    int newOffset = 0;
+    SymbolTable* toRecover = scopes.back();
+    offsets.back() += 1;
     if(!isFunc) {
-        newOffset = offsets.back();
-        offsets.push_back(newOffset + 1); 
+        //newOffset = offsets.back();
+        //offsets.push_back(newOffset + 1); 
     }
-    Symbol * newSymbol = new Symbol(name, newOffset, isFunc, type, names);
-    scopes.back()->addSymbol(newSymbol);
+    Symbol * newSymbol = new Symbol(name, (offsets.back() - 1), isFunc, type, names);
+    toRecover->addSymbol(newSymbol);
 }
 
 SymbolTable* StackTable::getScope(){

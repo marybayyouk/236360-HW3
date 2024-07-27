@@ -38,14 +38,12 @@ class SymbolTable {
 private:
     int currentOffset;
     bool isLoop;
-    string* returnedType;
 public:
     vector<Symbol*> symbols;
-    SymbolTable(int maxOff,bool isLoop, string retType = "");
+    SymbolTable(int maxOff,bool isLoop);
     ~SymbolTable();
     int getOffset() const { return currentOffset; }
     bool getIsLoop() const { return isLoop; }
-    string getReturnedType() const { return *returnedType; }
     bool isDefinedInTable(const string& name);
     Symbol* findSymbol(const string& symName);
     void addSymbol(Symbol* symbol);
@@ -55,15 +53,15 @@ class StackTable {
 public:
     vector<SymbolTable*> scopes;
     vector<int> offsets;
+    string setFunctionType(string funcName);
     StackTable();
     ~StackTable();
-    void pushScope(bool isLoop, string retType);
+    void pushScope(bool isLoop);
     void popScope();
     bool isDefinedInProgram(const string& symName);
     void addSymbolToProgram(const string& name, bool isFunc, const string& type, vector<string> names);
     SymbolTable* getScope();
     Symbol* findSymbol(const string& symName);
 };
-
 
 #endif // __SYMBOLTABLE_HPP_
